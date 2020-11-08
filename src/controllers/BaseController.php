@@ -48,7 +48,7 @@ class BaseController extends Controller
             ->permittedFor(AUDIENCE)
             ->identifiedBy(CLAIM_ID, true)
             ->issuedAt($time)
-            ->expiresAt($time + 3600)
+            ->expiresAt($time + 300)
             ->withClaim('auth_key', $authKey)
             ->getToken($signer, $key);
         return (string)$token;

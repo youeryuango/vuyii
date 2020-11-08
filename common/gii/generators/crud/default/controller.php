@@ -30,6 +30,7 @@ echo "<?php\n";
 namespace <?= StringHelper::dirname(ltrim($generator->controllerClass, '\\')) ?>;
 
 use Yii;
+use src\components\FormatResponse as FR;
 use <?= ltrim($generator->modelClass, '\\') ?>;
 <?php if (!empty($generator->searchModelClass)): ?>
 use <?= ltrim($generator->searchModelClass, '\\') . (isset($searchModelAlias) ? " as $searchModelAlias" : "") ?>;
@@ -66,16 +67,12 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
      */
     public function actionIndex()
     {
+        if(!Yii::$app->request->isGet) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $searchModel = new <?= isset($searchModelAlias) ? $searchModelAlias : $searchModelClass ?>();
-        if (Yii::$app->request->isGet && f_get('init_data')) {
-            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-            $count = $dataProvider->getTotalCount();
-            $data = $dataProvider->getModels();
-
-            return json_encode(['code'=>0,'msg'=>'success','count'=>$count,'data'=>$data]);
-        } else {
-            return $this->render('index',['searchModel'=>$searchModel]);
-        }
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $count = $dataProvider->getTotalCount();
+        $data = $dataProvider->getModels();
+        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取数据成功！', compact('data', 'count'));
     }
 
     /**

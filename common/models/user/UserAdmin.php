@@ -1,11 +1,12 @@
 <?php
 
-namespace common\models;
+namespace common\models\user;
 
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+use function GuzzleHttp\Psr7\str;
 
 /**
  * This is the model class for table "user_admin".
@@ -13,6 +14,7 @@ use yii\web\IdentityInterface;
  * @property int $id
  * @property string $username 用户名
  * @property string $auth_key 授权 key
+ * @property string $verification_token 授权 key
  * @property string $password_hash 密码 Hash
  * @property string $email 邮箱
  * @property int $status 状态 0禁用 1启用
@@ -62,18 +64,6 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
             'created_time' => '创建时间',
         ];
     }
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'auth_key' => '12133',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'auth_key' => '1213',
-        ],
-    ];
     /**
      * {@inheritdoc}
      */
@@ -83,16 +73,20 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @introduce 获取 有效的 token 并校验唯一 auth_key 是否一致
+     * @param mixed $token
+     * @param null $type
+     * @return IdentityInterface|static|null
+     * @author    张文杰
+     * @slogan    岁岁平，岁岁安，岁岁平安
+     * @datetime  2020/11/9 12:48 上午
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['auth_key'] === (string) $token->getClaim('auth_key')) {
-                return new static($user);
-            }
+        $user = static::findByVerificationToken($token);
+        if($user->auth_key === (string)$token->getClaim('auth_key')){
+            return $user;
         }
-
         return null;
     }
 
@@ -134,7 +128,7 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     public static function findByVerificationToken($token) {
         return static::findOne([
             'verification_token' => $token,
-            'status' => self::STATUS_FALSE
+            'status' => self::STATUS_TRUE
         ]);
     }
 
@@ -205,7 +199,7 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
      */
     public function generateAuthKey()
     {
-        $this->auth_key = Yii::$app->security->generateRandomString();
+        $this->auth_key = Yii::$app->security->generateRandomString(10);
     }
 
     /**

@@ -3,8 +3,7 @@
 
 namespace src\controllers;
 
-use common\models\User;
-use common\models\UserAdmin;
+use common\models\user\UserAdmin;
 use src\components\FormatResponse as FR;
 
 class AuthController extends BaseController
@@ -27,6 +26,8 @@ class AuthController extends BaseController
         if($user === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '未找到该用户！');
         if(!$user->validatePassword($postData['password'])) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '密码错误！');
         $token = parent::generateToken($user->auth_key);
+        $user->verification_token = $token;
+        if(!$user->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, current($user->getFirstErrors()));
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取 Token 成功！', compact('token'));
     }
 }
