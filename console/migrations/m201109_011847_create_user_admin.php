@@ -3,9 +3,9 @@
 use yii\db\Migration;
 
 /**
- * Class m201107_171701_create_user_admin
+ * Class m201109_011847_create_user_admin
  */
-class m201107_171701_create_user_admin extends Migration
+class m201109_011847_create_user_admin extends Migration
 {
     /**
      * {@inheritdoc}
@@ -16,7 +16,7 @@ class m201107_171701_create_user_admin extends Migration
             'id' => $this->primaryKey(),
             'username' => $this->string()->notNull()->unique()->comment('用户名'),
             'auth_key' => $this->string(10)->notNull()->unique()->comment('授权 key'),
-            'verification_token' => $this->string()->defaultValue(null),
+            'verification_token' => $this->string(500)->defaultValue(null),
             'password_hash' => $this->string()->notNull()->comment('密码 Hash'),
             'email' => $this->string()->notNull()->unique()->comment('邮箱'),
             'status' => $this->tinyInteger(4)->notNull()->defaultValue(1)->comment('状态 0禁用 1启用'),
@@ -29,7 +29,7 @@ class m201107_171701_create_user_admin extends Migration
      */
     public function safeDown()
     {
-        echo "m201107_171701_create_user_admin cannot be reverted.\n";
+        echo "m201109_011847_create_user_admin cannot be reverted.\n";
 
         return false;
     }
@@ -43,7 +43,7 @@ class m201107_171701_create_user_admin extends Migration
 
     public function down()
     {
-        echo "m201107_171701_create_user_admin cannot be reverted.\n";
+        echo "m201109_011847_create_user_admin cannot be reverted.\n";
 
         return false;
     }

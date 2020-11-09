@@ -3,10 +3,8 @@
 namespace common\models\user;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
-use function GuzzleHttp\Psr7\str;
 
 /**
  * This is the model class for table "user_admin".
@@ -14,14 +12,15 @@ use function GuzzleHttp\Psr7\str;
  * @property int $id
  * @property string $username 用户名
  * @property string $auth_key 授权 key
- * @property string $verification_token 授权 key
+ * @property string|null $verification_token
  * @property string $password_hash 密码 Hash
  * @property string $email 邮箱
  * @property int $status 状态 0禁用 1启用
- * @property int $created_time 创建时间
+ * @property string $created_time 创建时间
  */
 class UserAdmin extends ActiveRecord implements IdentityInterface
 {
+
     // 状态 禁用
     const STATUS_FALSE = 0;
     // 状态启用
@@ -41,10 +40,13 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'auth_key', 'password_hash', 'email', 'created_time'], 'required'],
-            [['status', 'created_time'], 'integer'],
+            [['status'], 'integer'],
+            [['created_time'], 'safe'],
             [['username', 'password_hash', 'email'], 'string', 'max' => 255],
-            [['auth_key'], 'string', 'max' => 32],
+            [['verification_token'], 'string', 'max' => 500],
+            [['auth_key'], 'string', 'max' => 10],
             [['username'], 'unique'],
+            [['auth_key'], 'unique'],
             [['email'], 'unique'],
         ];
     }
@@ -58,6 +60,7 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
             'id' => 'ID',
             'username' => '用户名',
             'auth_key' => '授权 key',
+            'verification_token' => 'Verification Token',
             'password_hash' => '密码 Hash',
             'email' => '邮箱',
             'status' => '状态 0禁用 1启用',
