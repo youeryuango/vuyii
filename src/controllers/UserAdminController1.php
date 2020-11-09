@@ -6,35 +6,32 @@ use Yii;
 use src\components\FormatResponse as FR;
 use common\models\user\UserAdmin;
 use common\models\user\search\UserAdminSearch;
+use src\controllers\BaseController;
 use yii\helpers\Json;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
+
 /**
  * UserAdminController implements the CRUD actions for UserAdmin model.
  */
 class UserAdminController extends BaseController
 {
+
     /**
      * Lists all UserAdmin models.
-     * @author 张文杰
-     * @slogan 岁岁平，岁岁安，岁岁平安
-     * @return object|\yii\web\Response
+     * @return mixed
      */
     public function actionIndex()
     {
         if(!Yii::$app->request->isGet) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $searchModel = new UserAdminSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $params = Yii::$app->request->queryParams;
+        $dataProvider = $searchModel->search($params);
         $count = $dataProvider->getTotalCount();
         $list = $dataProvider->getModels();
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取数据成功！', compact('list', 'count'));
     }
 
-    /**
-     * Get a data set according to the condition.
-     * @param integer $id
-     * @author 张文杰
-     * @slogan 岁岁平，岁岁安，岁岁平安
-     * @return object|\yii\web\Response
-     */
     public function actionRead($id)
     {
         if(!Yii::$app->request->isGet) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
@@ -44,13 +41,6 @@ class UserAdminController extends BaseController
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取数据成功！', compact('datum'));
     }
 
-    /**
-     * Creates a new UserAdmin model.
-     * If creation is successful, you have to create a record through a POST request.
-     * @author 张文杰
-     * @slogan 岁岁平，岁岁安，岁岁平安
-     * @return object|\yii\web\Response
-     */
     public function actionCreate()
     {
         if(!Yii::$app->request->isPost) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
@@ -60,14 +50,6 @@ class UserAdminController extends BaseController
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '创建记录成功！');
     }
 
-    /**
-     * Updates an existing UserAdmin model.
-     * If update is successful, you have to update a record through a PUT request.
-     * @param integer $id
-     * @author 张文杰
-     * @slogan 岁岁平，岁岁安，岁岁平安
-     * @return object|\yii\web\Response
-     */
     public function actionUpdate($id)
     {
         if(!Yii::$app->request->isPut) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
@@ -80,16 +62,6 @@ class UserAdminController extends BaseController
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '更新记录成功！');
     }
 
-    /**
-     * Deletes an existing UserAdmin model.
-     * If deletion is successful, you have to delete a record through a DELETE request.
-     * @param integer $id
-     * @author 张文杰
-     * @slogan 岁岁平，岁岁安，岁岁平安
-     * @return object|\yii\web\Response
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
-     */
     public function actionDelete($id)
     {
         if(!Yii::$app->request->isDelete) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);

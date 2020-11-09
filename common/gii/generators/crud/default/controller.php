@@ -6,7 +6,6 @@
 use yii\db\ActiveRecordInterface;
 use yii\helpers\StringHelper;
 
-
 /* @var $this yii\web\View */
 /* @var $generator yii\gii\generators\crud\Generator */
 
@@ -37,33 +36,18 @@ use <?= ltrim($generator->searchModelClass, '\\') . (isset($searchModelAlias) ? 
 <?php else: ?>
 use yii\data\ActiveDataProvider;
 <?php endif; ?>
-use <?= ltrim($generator->baseControllerClass, '\\') ?>;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-
+use <?= ltrim($generator->baseControllerClass, '\\') ?>;s
+use yii\helpers\Json;
 /**
  * <?= $controllerClass ?> implements the CRUD actions for <?= $modelClass ?> model.
  */
 class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->baseControllerClass) . "\n" ?>
 {
     /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
-    /**
      * Lists all <?= $modelClass ?> models.
-     * @return mixed
+     * @author 张文杰
+     * @slogan 岁岁平，岁岁安，岁岁平安
+     * @return object|\yii\web\Response
      */
     public function actionIndex()
     {
@@ -71,115 +55,78 @@ class <?= $controllerClass ?> extends <?= StringHelper::basename($generator->bas
         $searchModel = new <?= isset($searchModelAlias) ? $searchModelAlias : $searchModelClass ?>();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $count = $dataProvider->getTotalCount();
-        $data = $dataProvider->getModels();
-        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取数据成功！', compact('data', 'count'));
+        $list = $dataProvider->getModels();
+        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取数据成功！', compact('list', 'count'));
     }
 
     /**
-     * Displays a single <?= $modelClass ?> model.
+     * Get a data set according to the condition.
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @author 张文杰
+     * @slogan 岁岁平，岁岁安，岁岁平安
+     * @return object|\yii\web\Response
      */
-    public function actionView(<?= $actionParams ?>)
+    public function actionRead(<?= $actionParams ?>)
     {
-        return $this->render('view', [
-            'model' => $this->findModel(<?= $actionParams ?>),
-        ]);
+        if(!Yii::$app->request->isGet) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
+        $model = <?= $modelClass ?>::findOne(<?= $actionParams ?>);
+        if($model === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '没有找到该记录！');
+        $datum = $model->toArray();
+        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '获取数据成功！', compact('datum'));
     }
 
     /**
      * Creates a new <?= $modelClass ?> model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * If creation is successful, you have to create a record through a POST request.
+     * @author 张文杰
+     * @slogan 岁岁平，岁岁安，岁岁平安
+     * @return object|\yii\web\Response
      */
     public function actionCreate()
     {
+        if(!Yii::$app->request->isPost) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $model = new <?= $modelClass ?>();
-
-        if ($model->load(Yii::$app->request->post())) {
-            if($model->save()){
-                return json_encode(['code'=>0,'msg'=>'添加成功！']);
-            } else {
-                $errors = implode('<br>',$model->getFirstErrors());
-                return json_encode(['code'=>201,'msg'=>$errors]);
-            }
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
+        if(!$model->load(Yii::$app->request->post(), '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
+        if(!$model->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '创建记录失败！原因为:' . current($model->getFirstErrors()));
+        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '创建记录成功！');
     }
 
     /**
      * Updates an existing <?= $modelClass ?> model.
-     * If update is successful, the browser will be redirected to the 'view' page.
+     * If update is successful, you have to update a record through a PUT request.
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @author 张文杰
+     * @slogan 岁岁平，岁岁安，岁岁平安
+     * @return object|\yii\web\Response
      */
     public function actionUpdate(<?= $actionParams ?>)
     {
-        $model = $this->findModel(<?= $actionParams ?>);
-
-        if ($model->load(Yii::$app->request->post())) {
-            if($model->save()){
-                return json_encode(['code'=>0,'msg'=>'修改成功！']);
-            }else{
-                $errors = implode('<br>',$model->getFirstErrors());
-                return json_encode(['code'=>201,'msg'=>$errors]);
-            }
-        }else{
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-
-        }
+        if(!Yii::$app->request->isPut) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
+        $model = <?= $modelClass ?>::findOne(<?= $actionParams ?>);
+        if($model === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '没有找到该记录！');
+        $params = Json::decode(Yii::$app->request->getRawBody(), true);
+        if(!isset($params) || empty($params) || !is_array($params)) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '参数解析失败！');
+        if(!$model->load($params, '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
+        if(!$model->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '更新记录失败！原因为:' . current($model->getFirstErrors()));
+        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '更新记录成功！');
     }
 
     /**
      * Deletes an existing <?= $modelClass ?> model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * If deletion is successful, you have to delete a record through a DELETE request.
      * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @author 张文杰
+     * @slogan 岁岁平，岁岁安，岁岁平安
+     * @return object|\yii\web\Response
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete(<?= $actionParams ?>)
     {
-        $model = $this->findModel(<?= $actionParams ?>);
-        if($model->delete()){
-            $res = ['code'=>0,'msg'=>'success'];
-        }else{
-            $res = ['code'=>201,'msg'=>'系统异常，删除失败！'];
-        }
-
-        return json_encode($res);
-    }
-
-    /**
-     * Finds the <?= $modelClass ?> model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * <?= implode("\n     * ", $actionParamComments) . "\n" ?>
-     * @return <?=                   $modelClass ?> the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel(<?= $actionParams ?>)
-    {
-<?php
-if (count($pks) === 1) {
-    $condition = '$id';
-} else {
-    $condition = [];
-    foreach ($pks as $pk) {
-        $condition[] = "'$pk' => \$$pk";
-    }
-    $condition = '[' . implode(', ', $condition) . ']';
-}
-?>
-        if (($model = <?= $modelClass ?>::findOne(<?= $condition ?>)) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException(<?= $generator->generateString('The requested page does not exist.') ?>);
+        if(!Yii::$app->request->isDelete) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
+        $model = <?= $modelClass ?>::findOne(<?= $actionParams ?>);
+        if($model === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '没有找到该内容！');
+        if(!$model->delete()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '删除记录失败！原因为:' . current($model->getFirstErrors()));
+        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '删除记录成功！');
     }
 }
