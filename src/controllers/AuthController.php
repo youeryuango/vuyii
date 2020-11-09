@@ -9,6 +9,8 @@ use src\components\FormatResponse as FR;
 class AuthController extends BaseController
 {
 
+    protected $accessUrl = ['login'];
+
     /**
      * @introduce 用户登录，使用个人信息交换 Token 令牌
      * @return object|\yii\web\Response

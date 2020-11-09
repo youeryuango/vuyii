@@ -16,7 +16,7 @@ use yii\web\IdentityInterface;
  * @property string $password_hash 密码 Hash
  * @property string $email 邮箱
  * @property int $status 状态 0禁用 1启用
- * @property string $created_time 创建时间
+ * @property string $create_time 创建时间
  */
 class UserAdmin extends ActiveRecord implements IdentityInterface
 {
@@ -39,9 +39,9 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'auth_key', 'password_hash', 'email', 'created_time'], 'required'],
+            [['username', 'auth_key', 'password_hash', 'email', 'create_time'], 'required'],
             [['status'], 'integer'],
-            [['created_time'], 'safe'],
+            [['create_time'], 'safe'],
             [['username', 'password_hash', 'email'], 'string', 'max' => 255],
             [['verification_token'], 'string', 'max' => 500],
             [['auth_key'], 'string', 'max' => 10],
@@ -64,7 +64,7 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
             'password_hash' => '密码 Hash',
             'email' => '邮箱',
             'status' => '状态 0禁用 1启用',
-            'created_time' => '创建时间',
+            'create_time' => '创建时间',
         ];
     }
     /**

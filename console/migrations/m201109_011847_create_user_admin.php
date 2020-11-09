@@ -20,7 +20,7 @@ class m201109_011847_create_user_admin extends Migration
             'password_hash' => $this->string()->notNull()->comment('密码 Hash'),
             'email' => $this->string()->notNull()->unique()->comment('邮箱'),
             'status' => $this->tinyInteger(4)->notNull()->defaultValue(1)->comment('状态 0禁用 1启用'),
-            'created_time' => $this->dateTime()->notNull()->comment('创建时间'),
+            'create_time' => $this->dateTime()->notNull()->comment('创建时间'),
         ]);
     }
 

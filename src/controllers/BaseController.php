@@ -10,8 +10,10 @@ class BaseController extends Controller
 {
     use Helper;
 
+    protected $token;
+    protected $accessUrl = [];
     /**
-     * @introduce
+     * @introduce 行为校验
      * @return array
      * @author    张文杰
      * @slogan    岁岁平，岁岁安，岁岁平安
@@ -22,15 +24,49 @@ class BaseController extends Controller
         $behaviors = parent::behaviors();
         $behaviors['authenticator'] = [
             'class' => JwtHttpBearerAuth::class,
-            'optional' => [
-                'login',
-            ],
+            'optional' => $this->accessUrl,
         ];
         return $behaviors;
     }
 
     /**
-     * @introduce 构造token
+     * @introduce 请求事件之前
+     * @param \yii\base\Action $action
+     * @return bool
+     * @throws \yii\web\BadRequestHttpException
+     * @author    张文杰
+     * @slogan    岁岁平，岁岁安，岁岁平安
+     * @datetime  2020/11/9 5:15 下午
+     */
+    public function beforeAction($action)
+    {
+        $currController = $action->controller->id;
+        $currAction = $action->id;
+        if(!in_array($currAction, $this->accessUrl)){
+            $this->_parseToken();
+        }
+        return parent::beforeAction($action);
+    }
+
+
+    /**
+     * @introduce 解析出 token
+     * @author    张文杰
+     * @slogan    岁岁平，岁岁安，岁岁平安
+     * @datetime  2020/11/9 5:14 下午
+     */
+    private function _parseToken()
+    {
+        $authHeader = \Yii::$app->request->getHeaders()->get('authorization');
+        if(isset($authHeader) && !empty($authHeader) && strstr($authHeader, 'Bearer')) {
+            preg_match('/^Bearer\s+(.*?)$/', $authHeader, $matches);
+            if(isset($matches[1]) && !empty($matches[1])) {
+                $this->token = $matches[1];
+            }
+        }
+    }
+    /**
+     * @introduce 构造 token
      * @param $authKey string 用户授权 key
      * @return string
      * @author    张文杰
