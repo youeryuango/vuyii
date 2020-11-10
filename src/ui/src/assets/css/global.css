@@ -1,0 +1,50 @@
+html,body,#app{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Home.vue*/
+.g-container,.el-container,.el-aside{
+    height: 100%;
+}
+.el-header {
+    padding: 0;
+}
+.el-aside {
+    background-color: rgb(84, 92, 100);
+}
+
+/* index table pages */
+.box-card{
+    margin-top: 20px;
+}
+.block{
+    margin-top: 15px;
+}
+.el-dialog{
+    width: 30%;
+}
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+}
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+}
+.user-avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+}

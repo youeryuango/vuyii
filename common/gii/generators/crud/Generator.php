@@ -38,7 +38,7 @@ class Generator extends CrudGenerator
     public $formFields;
     public $inputType;
     public $isBatch = false;
-    public $baseControllerClass = 'backend\components\BaseController';
+    public $baseControllerClass = 'src\controllers\BaseController';
 
     const TYPE_TEXT = 1;
 //    const TYPE_UEDITOR = 2;
@@ -226,13 +226,40 @@ class Generator extends CrudGenerator
 
         switch ($type) {
             case self::TYPE_TEXT:
-                return parent::generateActiveField($attribute);
+                return <<<EOL
+                <el-form-item prop="{$attribute}">
+                    <el-input v-model="selectForm.{$attribute}"></el-input>
+                </el-form-item>
+EOL;
+
 //            case self::TYPE_UEDITOR:
 //                return "\$this->render('/common/_ueditor', ['model'=>\$model, 'attribute'=>'{$attribute}'])";
             case self::TYPE_SELECT:
-                return "\$form->field(\$model, '$attribute')->dropDownList([])";
+                return <<<EOL
+                        <el-form-item label="选择\$model->getAttributeLabel({$attribute})">
+                            <el-select v-model="value" placeholder="请选择<?=\$model->getAttributeLabel('{$attribute}')?>" :value="value">
+                                <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+EOL;
             case self::TYPE_DATE:
-                return "\$form->field(\$model, '$attribute')->textInput(['id'=>'date', 'placeholder'=>'yyyy-MM-dd', 'class'=>'layui-input date-icon'])";
+                return <<<EOL
+                        <el-form-item label="选择<?=\$model->getAttributeLabel('{$attribute}')?>">
+                          <div class="block">
+                            <span class="demonstration">默认</span>
+                            <el-date-picker
+                              v-model="value1"
+                              type="date"
+                              placeholder="选择日期">
+                            </el-date-picker>
+                          </div>
+                        </el-form-item>
+EOL;
 
         }
 
@@ -394,13 +421,39 @@ class Generator extends CrudGenerator
 
                     switch ($type) {
                         case self::TYPE_SELECT:
-                            $fields .= "					        <?= \$form->field(\$searchModel, '{$column}')->dropDownList([''=>'请选择'] + []) ?>";
+                            $fields .= <<<EOL
+                        <el-form-item label="选择{$column}">
+                            <el-select v-model="value" placeholder="请选择{$column}" :value="value">
+                                <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+EOL;
                             break;
                         case self::TYPE_DATE:
-                            $fields .= "					<?= \$form->field(\$searchModel, '{$column}')->textInput(['id'=>'edtDate','class'=>'layui-input date-icon','placeholder'=>'请选择日期范围']) ?>";
+                            $fields .= <<<EOL
+                        <el-form-item label="选择{$column}">
+                          <div class="block">
+                            <span class="demonstration">默认</span>
+                            <el-date-picker
+                              v-model="value1"
+                              type="date"
+                              placeholder="选择日期">
+                            </el-date-picker>
+                          </div>
+                        </el-form-item>
+EOL;
                             break;
                         default:
-                            $fields .= "	<?= \$form->field(\$searchModel, '{$column}') ?>";
+                            $fields .= <<<EOL
+                <el-form-item prop="{$column}">
+                    <el-input v-model="selectForm.{$column}"></el-input>
+                </el-form-item>
+EOL;
                     }
                     $fields .= "
                     \n";
