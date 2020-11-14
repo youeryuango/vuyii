@@ -6,7 +6,7 @@ import './assets/css/global.css'
 import axios from 'axios'
 Vue.prototype.$http = axios
 // 配置请求根路径
-axios.defaults.baseURL = ''
+axios.defaults.baseURL = 'http://api.vuyii.com/'
 // 拦截器
 axios.interceptors.request.use(config => {
   console.log(config)

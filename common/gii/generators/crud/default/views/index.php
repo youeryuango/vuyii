@@ -1,4 +1,9 @@
 <?php
+use yii\helpers\Url;
+use yii\helpers\Inflector;
+use yii\helpers\StringHelper;
+$modelClass = Inflector::camel2id(StringHelper::basename($generator->modelClass));
+$indexUrl = Url::to(["/$modelClass/index"]);
 $tableSchema = $generator->getTableSchema();
 foreach ($tableSchema->columns as $column){
     if(empty($generator->listFields) || (!empty($generator->listFields) && in_array($column->name,$generator->listFields))){
@@ -54,8 +59,8 @@ $node_html = implode(",\n",$nodeData);
         </el-breadcrumb>
         <el-card class="box-card">
             <div slot="header" class="clearfix">
-                <el-row :gutter="20">
-                    <el-form ref="filerForm"  label-width="80px" :inline="true">
+                <el-row>
+                    <el-form class="filer-form" ref="filerForm"  label-width="130px" label-position="left" :inline="true">
                         <?= $generator->generateSearchField();?>
                         <el-form-item label="选择主题">
                             <el-select v-model="value" placeholder="请选择主题" :value="value">
@@ -146,6 +151,9 @@ $node_html = implode(",\n",$nodeData);
 <script>
     export default {
         name: "List",
+        created(){
+            this.requestData();
+        },
         data(){
             return {
                 options: [{
@@ -172,7 +180,7 @@ $node_html = implode(",\n",$nodeData);
                     {'id': '6', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '小静', 'gender': '女', 'status': false},
                     {'id': '7', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '赵四', 'gender': '男', 'status': true},
                 ],
-
+                selectForm:{},
                 dialogTableVisible: false,
                 dialogFormVisible: false,
                 form: {
@@ -186,6 +194,11 @@ $node_html = implode(",\n",$nodeData);
             }
         },
         methods:{
+            async requestData(){
+                const  { data: list } = await this.$http.post('<?=$indexUrl?>', {});
+                console.log(list)
+                if (list.meta.status !== 200) return this.$message.error('失败！');
+            },
             changeStatus(obj){
                 console.log(obj.status)
                 this.$message.success('操作成功！');

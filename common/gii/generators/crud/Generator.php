@@ -173,7 +173,6 @@ class Generator extends CrudGenerator
                 $files[] = new CodeFile("$viewPath/$file", $this->render("views/$file"));
             }
         }
-
         return $files;
     }
 
@@ -194,7 +193,7 @@ class Generator extends CrudGenerator
     public function getViewPath()
     {
         if (empty($this->viewPath)) {
-            return Yii::getAlias('@app/views/' . $this->getControllerID());
+            return Yii::getAlias('@src/templates/' . $this->getControllerID());
         } else {
             return Yii::getAlias($this->viewPath);
         }
@@ -227,7 +226,7 @@ class Generator extends CrudGenerator
         switch ($type) {
             case self::TYPE_TEXT:
                 return <<<EOL
-                <el-form-item prop="{$attribute}">
+                <el-form-item prop="{$attribute}" label="请输入关键词">
                     <el-input v-model="selectForm.{$attribute}"></el-input>
                 </el-form-item>
 EOL;
@@ -250,14 +249,11 @@ EOL;
             case self::TYPE_DATE:
                 return <<<EOL
                         <el-form-item label="选择<?=\$model->getAttributeLabel('{$attribute}')?>">
-                          <div class="block">
-                            <span class="demonstration">默认</span>
                             <el-date-picker
                               v-model="value1"
                               type="date"
                               placeholder="选择日期">
                             </el-date-picker>
-                          </div>
                         </el-form-item>
 EOL;
 
@@ -418,12 +414,12 @@ EOL;
             foreach ($searchFields as $columns) {
                 foreach ($columns as $column) {
                     $type = $this->inputType[$column];
-
+                    $columnName = $this->getAttributeLabel($column);
                     switch ($type) {
                         case self::TYPE_SELECT:
                             $fields .= <<<EOL
-                        <el-form-item label="选择{$column}">
-                            <el-select v-model="value" placeholder="请选择{$column}" :value="value">
+                        <el-form-item label="选择{$columnName}">
+                            <el-select v-model="value" placeholder="请选择{$columnName}" :value="value">
                                 <el-option
                                     v-for="item in options"
                                     :key="item.value"
@@ -436,21 +432,18 @@ EOL;
                             break;
                         case self::TYPE_DATE:
                             $fields .= <<<EOL
-                        <el-form-item label="选择{$column}">
-                          <div class="block">
-                            <span class="demonstration">默认</span>
+                        <el-form-item label="选择{$columnName}">
                             <el-date-picker
                               v-model="value1"
                               type="date"
                               placeholder="选择日期">
                             </el-date-picker>
-                          </div>
                         </el-form-item>
 EOL;
                             break;
                         default:
                             $fields .= <<<EOL
-                <el-form-item prop="{$column}">
+                <el-form-item prop="{$column}" label="请输入关键词">
                     <el-input v-model="selectForm.{$column}"></el-input>
                 </el-form-item>
 EOL;

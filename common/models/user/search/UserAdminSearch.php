@@ -19,7 +19,7 @@ class UserAdminSearch extends UserAdmin
     {
         return [
             [['id'], 'integer'],
-            [['username', 'auth_key', 'password_hash', 'email', 'status', 'created_time'], 'safe'],
+            [['username', 'auth_key', 'password_hash', 'email', 'status', 'create_time'], 'safe'],
         ];
     }
 
@@ -65,9 +65,9 @@ class UserAdminSearch extends UserAdmin
             'id' => $this->id,
         ]);
 
-        if ($this->created_time) {
-			list($start, $end) = explode(' - ', $this->created_time);
-			$query->andFilterWhere(['between', 'created_time', $start, $end]);
+        if ($this->create_time) {
+			list($start, $end) = explode(' - ', $this->create_time);
+			$query->andFilterWhere(['between', 'create_time', $start, $end]);
 		};
 
         $query->andFilterWhere(['like', 'username', $this->username])

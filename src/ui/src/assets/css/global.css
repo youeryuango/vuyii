@@ -48,3 +48,9 @@ html,body,#app{
     height: 178px;
     display: block;
 }
+.filer-form .el-form-item{
+    width: 250px;
+}
+.filer-form .el-form-item .el-input{
+    width: 200px;
+}

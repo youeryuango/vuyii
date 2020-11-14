@@ -7,14 +7,14 @@
         </el-breadcrumb>
         <el-card class="box-card">
             <div slot="header" class="clearfix">
-                <el-row :gutter="20">
-                    <el-form ref="filerForm"  label-width="80px" :inline="true">
-                                        <el-form-item prop="title">
-                    <el-input v-model="selectForm.title"></el-input>
+                <el-row>
+                    <el-form class="filer-form" ref="filerForm"  label-width="130px" label-position="left" :inline="true">
+                                        <el-form-item prop="username">
+                    <el-input v-model="selectForm.username"></el-input>
                 </el-form-item>
                     
-                        <el-form-item label="选择status">
-                            <el-select v-model="value" placeholder="请选择status" :value="value">
+                        <el-form-item label="选择Status">
+                            <el-select v-model="value" placeholder="请选择Status" :value="value">
                                 <el-option
                                     v-for="item in options"
                                     :key="item.value"
@@ -24,7 +24,7 @@
                             </el-select>
                         </el-form-item>
                     
-                        <el-form-item label="选择create_time">
+                        <el-form-item label="选择Create Time">
                           <div class="block">
                             <span class="demonstration">默认</span>
                             <el-date-picker
@@ -33,17 +33,6 @@
                               placeholder="选择日期">
                             </el-date-picker>
                           </div>
-                        </el-form-item>
-                    
-                        <el-form-item label="选择user_id">
-                            <el-select v-model="value" placeholder="请选择user_id" :value="value">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
                         </el-form-item>
                     
 			
@@ -111,21 +100,28 @@
                 <el-table-column
                     sortable
                     align="center"
-                    prop="title"
-                    label="标题"
+                    prop="username"
+                    label="用户名"
                     width="180">
                 </el-table-column>,
                 <el-table-column
                     sortable
                     align="center"
-                    prop="desc"
-                    label="简介"
+                    prop="auth_key"
+                    label="授权 key"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="email"
+                    label="邮箱"
                     width="180">
                 </el-table-column>,
                 <el-table-column
                         align="center"
                         prop="status"
-                        label="状态">
+                        label="状态 0禁用 1启用">
                         <template  slot-scope="scope">
                             <el-switch
                                 @change="changeStatus(scope.row)"
@@ -138,22 +134,8 @@
                 <el-table-column
                     sortable
                     align="center"
-                    prop="content"
-                    label="内容"
-                    width="180">
-                </el-table-column>,
-                <el-table-column
-                    sortable
-                    align="center"
                     prop="create_time"
                     label="创建时间"
-                    width="180">
-                </el-table-column>,
-                <el-table-column
-                    sortable
-                    align="center"
-                    prop="user_id"
-                    label="创建人"
                     width="180">
                 </el-table-column>
                 <el-table-column
@@ -189,6 +171,9 @@
 <script>
     export default {
         name: "List",
+      created(){
+          this.requestData();
+      },
         data(){
             return {
                 options: [{
@@ -215,7 +200,7 @@
                     {'id': '6', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '小静', 'gender': '女', 'status': false},
                     {'id': '7', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '赵四', 'gender': '男', 'status': true},
                 ],
-
+                selectForm:{},
                 dialogTableVisible: false,
                 dialogFormVisible: false,
                 form: {
@@ -229,6 +214,11 @@
             }
         },
         methods:{
+            async requestData(){
+                const  { data: list } = await this.$http.get('/user-admin/index', {});
+                console.log(list)
+                if (list.meta.status !== 200) return this.$message.error('失败！');
+            },
             changeStatus(obj){
                 console.log(obj.status)
                 this.$message.success('操作成功！');
