@@ -16,6 +16,7 @@ class BaseController extends Controller
 
     protected $token;
     protected $accessUrl = [];
+    public $enableCsrfValidation = false;
     /**
      * @introduce 行为校验
      * @return array
@@ -25,41 +26,14 @@ class BaseController extends Controller
      */
     public function behaviors()
     {
-        header("Access-Control-Allow-Origin: *");
-//如果需要设置允许所有域名发起的跨域请求，可以使用通配符 * ，如果限制自己的域名的话写自己的域名就行了。
-// 响应类型 *代表通配符，可以指出POST,GET等固定类型
-        header('Access-Control-Allow-Methods:* ');
-// 响应头设置
-        header('Access-Control-Allow-Headers:x-requested-with,content-type');
+
+        Yii::$app->response->headers->set("Access-Control-Allow-Origin", "*");
+        Yii::$app->response->headers->set("Access-Control-Allow-Methods", "DELETE, POST, PUT, GET");
+        Yii::$app->response->headers->set("Access-Control-Expose-Headers", "x-pagination-page-count, x-pagination-total-count, x-pagination-per-page,x-pagination-current-page");
+        Yii::$app->response->headers->set("Access-Control-Allow-Headers", " Content-Type, authorization");
         $behaviors = parent::behaviors();
-        $behaviors = [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [],
-            ],
-            'corsFilter' => [
-                'class' => Cors::className(),
-                'cors' => [
-                    'Origin' => ['*'],
-                    'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                    'Access-Control-Request-Headers' => ['*'],
-                    'Access-Control-Allow-Origin' => ['*'],
-                    'Access-Control-Allow-Credentials' => true,
-                    'Access-Control-Max-Age' => 86400,
-                    'Access-Control-Expose-Headers' => [],
-                ],
-            ],
-        ];
-        if (Yii::$app->getRequest()->getMethod() !== 'OPTIONS') {
-            $behaviors['authenticator'] = [
-                'class' => HttpBearerAuth::className(),
-                'optional' => [
-                    'login'
-                ],
-            ];
-        }
         $behaviors['authenticator'] = [
-//            'class' => JwtHttpBearerAuth::class,
+            'class' => JwtHttpBearerAuth::class,
             'optional' => $this->accessUrl,
         ];
         return $behaviors;

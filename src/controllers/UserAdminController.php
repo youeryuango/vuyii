@@ -22,6 +22,7 @@ class UserAdminController extends BaseController
     {
         if(!Yii::$app->request->isGet) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $searchModel = new UserAdminSearch();
+        dd(json_decode(Yii::$app->request->get('pageArgs'), true));
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $count = $dataProvider->getTotalCount();
         $list = $dataProvider->getModels();

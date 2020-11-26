@@ -159,7 +159,7 @@
                     @current-change="handleCurrentChange"
                     :current-page="1"
                     :page-sizes="[100, 200, 300, 400]"
-                    :page-size="100"
+                    :page-size="20"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="400">
                 </el-pagination>
@@ -193,13 +193,11 @@
                     label: 'e'
                 }],
                 value: '',
-                tableData: [
-                    {'id': '3', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '张文杰', 'gender': '男', 'status': true},
-                    {'id': '4', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '李二', 'gender': '女', 'status': true},
-                    {'id': '5', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '王五', 'gender': '男', 'status': false},
-                    {'id': '6', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '小静', 'gender': '女', 'status': false},
-                    {'id': '7', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '赵四', 'gender': '男', 'status': true},
-                ],
+                tableData: [],
+                pageArgs:{
+                  pageSize: 20,
+                  currPage: 1,
+                },
                 selectForm:{},
                 dialogTableVisible: false,
                 dialogFormVisible: false,
@@ -215,9 +213,10 @@
         },
         methods:{
             async requestData(){
-                const  { data: list } = await this.$http.get('/user-admin/index', {});
-                console.log(list)
-                if (list.meta.status !== 200) return this.$message.error('失败！');
+              console.log(this.pageArgs)
+                let resp = await this.$http.get('/user-admin/index?pageSize='+this.pageArgs.pageSize+'&currPage=' + this.pageArgs.currPage,);
+                if (resp.data.code !== 10000) return this.$message.error('失败！');
+                this.tableData = resp.data.data.list;
             },
             changeStatus(obj){
                 console.log(obj.status)
@@ -226,13 +225,15 @@
             update(obj){
                 console.log(obj)
             },
-            handleSizeChange()
+            handleSizeChange(val)
             {
-
+              this.pageArgs.pageSize = val;
+              this.requestData();
             },
-            handleCurrentChange()
+            handleCurrentChange(val)
             {
-
+              this.pageArgs.currPage = val;
+              this.requestData();
             },
             onSubmit()
             {
