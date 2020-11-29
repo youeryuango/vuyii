@@ -2,6 +2,7 @@
 
 namespace common\models\user;
 
+use sizeg\jwt\JwtValidationData;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;

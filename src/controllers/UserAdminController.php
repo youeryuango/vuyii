@@ -2,6 +2,7 @@
 
 namespace src\controllers;
 
+use phpDocumentor\Reflection\Type;
 use Yii;
 use src\components\FormatResponse as FR;
 use common\models\user\UserAdmin;
@@ -22,7 +23,6 @@ class UserAdminController extends BaseController
     {
         if(!Yii::$app->request->isGet) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $searchModel = new UserAdminSearch();
-        dd(json_decode(Yii::$app->request->get('pageArgs'), true));
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         $count = $dataProvider->getTotalCount();
         $list = $dataProvider->getModels();
@@ -74,7 +74,10 @@ class UserAdminController extends BaseController
         if(!Yii::$app->request->isPut) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $model = UserAdmin::findOne($id);
         if($model === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '没有找到该记录！');
-        $params = Json::decode(Yii::$app->request->getRawBody(), true);
+        $params =Yii::$app->request->getBodyParams();
+        if(isset($params['status']) && $this->user->id === (int)$id){
+            return FR::jsonResponse(FR::CODE_STATUS_FAILED, '您无法更改自己的可用状态！');
+        }
         if(!isset($params) || empty($params) || !is_array($params)) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '参数解析失败！');
         if(!$model->load($params, '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
         if(!$model->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '更新记录失败！原因为:' . current($model->getFirstErrors()));

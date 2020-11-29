@@ -48,7 +48,7 @@ class UserAdminSearch extends UserAdmin
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-            'pageSize' => isset($params['limit']) && !empty($params['limit']) ? $params['limit'] : 20,
+            'pageSize' => isset($params['pageSize']) && !empty($params['pageSize']) ? $params['pageSize'] : 20,
             ],
         ]);
 

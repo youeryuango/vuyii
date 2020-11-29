@@ -4,15 +4,17 @@ import router from './router'
 import './plugins/element.js'
 import './assets/css/global.css'
 import axios from 'axios'
+import global from './utils/global.js'
 import qs from 'qs'
 Vue.prototype.$http = axios
+Vue.prototype.$global = global
 // 配置请求根路径
 axios.defaults.baseURL = '/api'
 // 拦截器
 axios.interceptors.request.use(config => {
   // 在每个请求的 header 中加入 token
   config.headers.Authorization = window.sessionStorage.getItem('token');
-  if (config.method === "post"){
+  if (config.method === 'post' || config.method === 'put'){
     config.data = qs.stringify(config.data);
     config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
   }

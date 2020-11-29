@@ -127,7 +127,9 @@
                                 @change="changeStatus(scope.row)"
                                 v-model="scope.row.status"
                                 active-color="#13ce66"
-                                inactive-color="#ff4949">
+                                inactive-color="#ff4949"
+                                active-value="1"
+                                inactive-value="0">
                             </el-switch>
                         </template>
                     </el-table-column>,
@@ -158,10 +160,10 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="1"
-                    :page-sizes="[100, 200, 300, 400]"
+                    :page-sizes="[20, 60, 80, 100]"
                     :page-size="20"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="400">
+                    :total="totalCount">
                 </el-pagination>
             </div>
         </el-card>
@@ -194,6 +196,7 @@
                 }],
                 value: '',
                 tableData: [],
+                totalCount: 0,
                 pageArgs:{
                   pageSize: 20,
                   currPage: 1,
@@ -213,23 +216,42 @@
         },
         methods:{
             async requestData(){
-              console.log(this.pageArgs)
-                let resp = await this.$http.get('/user-admin/index?pageSize='+this.pageArgs.pageSize+'&currPage=' + this.pageArgs.currPage,);
-                if (resp.data.code !== 10000) return this.$message.error('失败！');
-                this.tableData = resp.data.data.list;
+                let condition = {
+                  params:{
+                    limit: this.pageArgs.pageSize,
+                    page: this.pageArgs.currPage,
+                  }
+                };
+                let resp = await this.$http.get('/user-admin/index', condition);
+                if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
+                this.tableData  = resp.data.data.list;
+                this.totalCount =  resp.data.data.count;
             },
-            changeStatus(obj){
-                console.log(obj.status)
-                this.$message.success('操作成功！');
+          async changeStatus(obj){
+            let condition = {
+                status: obj.status ? this.$global.STATUS_FALSE : this.$global.STATUS_TRUE,
+            };
+            let resp = await this.$http.put('/user-admin/update?id=' + obj.id, condition);
+            if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
+            this.$message.success('修改状态成功！');
+            this.requestData();
             },
             update(obj){
                 console.log(obj)
             },
+          /**
+           * 监听分页条数变化
+           * @param val
+           */
             handleSizeChange(val)
             {
               this.pageArgs.pageSize = val;
               this.requestData();
             },
+          /**
+           * 监听当前页变化
+           * @param val
+           */
             handleCurrentChange(val)
             {
               this.pageArgs.currPage = val;
