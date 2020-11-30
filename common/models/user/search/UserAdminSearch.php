@@ -41,7 +41,7 @@ class UserAdminSearch extends UserAdmin
      */
     public function search($params)
     {
-        $query = UserAdmin::find()->asArray();
+        $query = UserAdmin::find()->asArray()->orderBy('id DESC');
 
         // add conditions that should always apply here
 

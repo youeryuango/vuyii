@@ -98,6 +98,9 @@ class UserAdminController extends BaseController
     {
         if(!Yii::$app->request->isDelete) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $model = UserAdmin::findOne($id);
+        if($this->user->id === (int)$id){
+            return FR::jsonResponse(FR::CODE_STATUS_FAILED, '您无法删除自身！');
+        }
         if($model === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '没有找到该内容！');
         if(!$model->delete()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '删除记录失败！原因为:' . current($model->getFirstErrors()));
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '删除记录成功！');

@@ -88,7 +88,7 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     public static function findIdentityByAccessToken($token, $type = null)
     {
         $user = static::findByVerificationToken($token);
-        if($user->auth_key === (string)$token->getClaim('auth_key')){
+        if($user && $user->auth_key === (string)$token->getClaim('auth_key')){
             return $user;
         }
         return null;

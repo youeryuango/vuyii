@@ -18,7 +18,9 @@ foreach ($tableSchema->columns as $column){
                                 @change="changeStatus(scope.row)"
                                 v-model="scope.row.{$column->name}"
                                 active-color="#13ce66"
-                                inactive-color="#ff4949">
+                                inactive-color="#ff4949"
+                                active-value="1"
+                                inactive-value="0">
                             </el-switch>
                         </template>
                     </el-table-column>

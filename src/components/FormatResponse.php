@@ -16,7 +16,7 @@ class FormatResponse
     const CODE_STATUS_PARAMS_ERROR  = 10002;
     const CODE_STATUS_SYSTEM_ERROR  = 10003;
     const CODE_STATUS_REQUEST_ERROR = 10004;
-    const CODE_UNAUTHORIZED_CODE    = 401;
+    const CODE_UNAUTHORIZED    = 401;
 
     /**
      * 状态码与提示信息的映射
@@ -28,7 +28,7 @@ class FormatResponse
           self::CODE_STATUS_PARAMS_ERROR  => '参数异常！',
           self::CODE_STATUS_SYSTEM_ERROR  => '系统异常！',
           self::CODE_STATUS_REQUEST_ERROR => '错误的请求方式！',
-          self::CODE_UNAUTHORIZED_CODE    => '您无此权限！',
+          self::CODE_UNAUTHORIZED         => '您无此权限！',
     ];
 
     /**
@@ -46,6 +46,7 @@ class FormatResponse
     {
         if(array_key_exists($code, self::$codeMap) && empty($msg)) $msg = self::$codeMap[$code];
         $response = Instance::ensure('response', \yii\base\Response::className());
+        if($code === self::CODE_UNAUTHORIZED) $response->statusCode = self::CODE_UNAUTHORIZED;
         $response->format = Response::FORMAT_JSON;
         $response->data = compact('code', 'msg', 'data', 'extra');
         return $response;

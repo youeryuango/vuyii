@@ -20,7 +20,7 @@ axios.interceptors.request.use(config => {
   }
   return config;
 })
-
+// 拦截响应
 axios.interceptors.response.use(
   response => {
     return response
@@ -28,16 +28,17 @@ axios.interceptors.response.use(
   error => {
     if (error.response) {
       switch (error.response.status) {
-        case 401:
+        case global.UNAUTHORIZED_CODE:
           // 返回 401 清除token信息并跳转到登录页面
+          window.sessionStorage.clear();
           router.replace({
             path: '/login'
-          })
-          location.reload()
+          });
+          location.reload();
       }
     }
     return Promise.reject(error.response.data)   // 返回接口返回的错误信息
-  })
+  });
 
 Vue.config.productionTip = false
 

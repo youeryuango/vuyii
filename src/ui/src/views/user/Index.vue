@@ -9,47 +9,33 @@
             <div slot="header" class="clearfix">
                 <el-row>
                     <el-form class="filer-form" ref="filerForm"  label-width="130px" label-position="left" :inline="true">
-                                        <el-form-item prop="username">
-                    <el-input v-model="selectForm.username"></el-input>
+                                        <el-form-item prop="username" label="填写 Username">
+                    <el-input v-model="selectArgs.username"></el-input>
                 </el-form-item>
                     
                         <el-form-item label="选择Status">
-                            <el-select v-model="value" placeholder="请选择Status" :value="value">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                            <el-select  placeholder="请选择Status" v-model="selectArgs.status">
+                                <el-option  v-for="item in statusMap"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                >
                                 </el-option>
                             </el-select>
                         </el-form-item>
                     
-                        <el-form-item label="选择Create Time">
-                          <div class="block">
-                            <span class="demonstration">默认</span>
+                        <el-form-item label="选择CreateTime">
                             <el-date-picker
-                              v-model="value1"
-                              type="date"
-                              placeholder="选择日期">
+                                    v-model="selectArgs.createTime"
+                                    value=""
+                                    type="date"
+                                    placeholder="选择日期">
                             </el-date-picker>
-                          </div>
-                        </el-form-item>
-                    
-			
-                        <el-form-item label="选择主题">
-                            <el-select v-model="value" placeholder="请选择主题" :value="value">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
                         </el-form-item>
                     </el-form>
                 </el-row>
                 <el-row>
-                    <el-button type="primary" icon="el-icon-search" size="mini">搜索</el-button>
+                    <el-button type="primary" icon="el-icon-search" size="mini" @click="handleSearch">搜索</el-button>
                     <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="dialogFormVisible = true">新增</el-button>
                 </el-row>
                 <el-dialog  :visible.sync="dialogFormVisible">
@@ -149,7 +135,7 @@
                                 <el-button type="primary" icon="el-icon-edit" size="small" @click="update(scope.row)"></el-button>
                             </el-tooltip>
                             <el-tooltip class="item" effect="dark" content="删除" placement="top">
-                                <el-button type="danger" icon="el-icon-delete" size="small" @click="delete(scope.row)"></el-button>
+                                <el-button type="danger" icon="el-icon-delete" size="small" @click="del(scope.row)"></el-button>
                             </el-tooltip>
                         </el-row>
                     </template>
@@ -178,30 +164,18 @@
       },
         data(){
             return {
-                options: [{
-                    value: '选项1',
-                    label: 'a'
-                }, {
-                    value: '选项2',
-                    label: 'b'
-                }, {
-                    value: '选项3',
-                    label: 'c'
-                }, {
-                    value: '选项4',
-                    label: 'd'
-                }, {
-                    value: '选项5',
-                    label: 'e'
-                }],
-                value: '',
+                selectArgs:{
+                  username:   '',
+                  create_time: '',
+                  status:     null,
+                },
+                statusMap: [{value: this.$global.STATUS_FALSE, label: '禁用'}, {value: this.$global.STATUS_TRUE, label: '启用'}],
                 tableData: [],
                 totalCount: 0,
                 pageArgs:{
                   pageSize: 20,
                   currPage: 1,
                 },
-                selectForm:{},
                 dialogTableVisible: false,
                 dialogFormVisible: false,
                 form: {
@@ -215,6 +189,9 @@
             }
         },
         methods:{
+          /**
+           * 请求列表数据
+           **/
             async requestData(){
                 let condition = {
                   params:{
@@ -227,18 +204,48 @@
                 this.tableData  = resp.data.data.list;
                 this.totalCount =  resp.data.data.count;
             },
+          /**
+           * 更改记录状态
+           **/
           async changeStatus(obj){
             let condition = {
                 status: obj.status ? this.$global.STATUS_FALSE : this.$global.STATUS_TRUE,
             };
             let resp = await this.$http.put('/user-admin/update?id=' + obj.id, condition);
-            if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
-            this.$message.success('修改状态成功！');
-            this.requestData();
+            if (resp.data.code !== this.$global.SUCCESS_CODE) {
+              this.$message.error(resp.data.msg);
+            }else{
+              this.$message.success('修改状态成功！');
+            }
+            return this.requestData();
             },
             update(obj){
                 console.log(obj)
             },
+          /**
+           * 删除记录
+           * */
+           del(obj){
+            this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.$http.delete('/user-admin/delete?id=' + obj.id).then(resp => {
+                if (resp.data.code !== this.$global.SUCCESS_CODE) {
+                  this.$message.error(resp.data.msg);
+                }else{
+                  this.$message.success('删除记录成功！');
+                }
+                return this.requestData();
+              })
+            }).catch(() => {
+              this.$message({
+                type: 'info',
+                message: '已取消删除！'
+              });
+            });
+          },
           /**
            * 监听分页条数变化
            * @param val
@@ -257,6 +264,23 @@
               this.pageArgs.currPage = val;
               this.requestData();
             },
+          /**
+           * 根据筛选条件搜索
+           */
+          async handleSearch(){
+              let pageArgs = {
+                limit: this.pageArgs.pageSize,
+                page: this.pageArgs.currPage,
+              };
+              let paramsAssign = Object.assign(pageArgs, this.selectArgs);
+            let condition = {
+              params: paramsAssign
+            };
+            let resp = await this.$http.get('/user-admin/index', condition);
+            if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
+            this.tableData  = resp.data.data.list;
+            this.totalCount =  resp.data.data.count;
+          },
             onSubmit()
             {
 

@@ -236,12 +236,8 @@ EOL;
             case self::TYPE_SELECT:
                 return <<<EOL
                         <el-form-item label="选择\$model->getAttributeLabel({$attribute})">
-                            <el-select v-model="value" placeholder="请选择<?=\$model->getAttributeLabel('{$attribute}')?>" :value="value">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                            <el-select v-model="value" placeholder="请选择<?=\$model->getAttributeLabel('{$attribute}')?>">
+                                <el-option>
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -250,7 +246,6 @@ EOL;
                 return <<<EOL
                         <el-form-item label="选择<?=\$model->getAttributeLabel('{$attribute}')?>">
                             <el-date-picker
-                              v-model="value1"
                               type="date"
                               placeholder="选择日期">
                             </el-date-picker>
@@ -419,12 +414,8 @@ EOL;
                         case self::TYPE_SELECT:
                             $fields .= <<<EOL
                         <el-form-item label="选择{$columnName}">
-                            <el-select v-model="value" placeholder="请选择{$columnName}" :value="value">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
+                            <el-select placeholder="请选择{$columnName}">
+                                <el-option>
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -434,7 +425,6 @@ EOL;
                             $fields .= <<<EOL
                         <el-form-item label="选择{$columnName}">
                             <el-date-picker
-                              v-model="value1"
                               type="date"
                               placeholder="选择日期">
                             </el-date-picker>

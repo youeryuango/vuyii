@@ -62,7 +62,7 @@ class BaseController extends Controller
             $this->_parseToken();
             // token 失效
             if(!$this->token) {
-                FormatResponse::jsonResponse(FormatResponse::CODE_UNAUTHORIZED_CODE);
+                FormatResponse::jsonResponse(FormatResponse::CODE_UNAUTHORIZED);
                 return false;
             }
             if(!empty($this->token)){
