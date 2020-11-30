@@ -32,7 +32,6 @@ class BaseController extends Controller
      */
     public function behaviors()
     {
-
         Yii::$app->response->headers->set("Access-Control-Allow-Origin", "*");
         Yii::$app->response->headers->set("Access-Control-Allow-Methods", "DELETE, POST, PUT, GET");
         Yii::$app->response->headers->set("Access-Control-Expose-Headers", "x-pagination-page-count, x-pagination-total-count, x-pagination-per-page,x-pagination-current-page");

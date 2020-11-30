@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Login from "../components/Login"
 import Home from "../components/Home"
 import UserList from "../views/user/Index"
+import UserForm from "../views/user/Form"
 // import PostList from "../components/post/List"
 
 const routes = [
@@ -22,6 +23,12 @@ const routes = [
       {
         path:'/user-list',
         component: UserList,
+        children:[
+          {
+            path:'/user-create',
+            component: UserForm,
+          }
+        ]
       },
       // {
       //   path:'/post-list',

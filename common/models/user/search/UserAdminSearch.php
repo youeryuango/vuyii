@@ -51,8 +51,7 @@ class UserAdminSearch extends UserAdmin
             'pageSize' => isset($params['pageSize']) && !empty($params['pageSize']) ? $params['pageSize'] : 20,
             ],
         ]);
-
-        $this->load($params);
+        $this->load($params, '');
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -69,10 +68,7 @@ class UserAdminSearch extends UserAdmin
 			list($start, $end) = explode(' - ', $this->create_time);
 			$query->andFilterWhere(['between', 'create_time', $start, $end]);
 		};
-
         $query->andFilterWhere(['like', 'username', $this->username])
-            ->andFilterWhere(['like', 'auth_key', $this->auth_key])
-            ->andFilterWhere(['like', 'password_hash', $this->password_hash])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'status', $this->status]);
 

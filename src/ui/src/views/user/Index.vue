@@ -14,7 +14,7 @@
                 </el-form-item>
                     
                         <el-form-item label="选择Status">
-                            <el-select  placeholder="请选择Status" v-model="selectArgs.status">
+                            <el-select  placeholder="请选择Status" clearable v-model="selectArgs.status">
                                 <el-option  v-for="item in statusMap"
                                             :key="item.value"
                                             :label="item.label"
@@ -39,42 +39,15 @@
                     <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="dialogFormVisible = true">新增</el-button>
                 </el-row>
                 <el-dialog  :visible.sync="dialogFormVisible">
-                    <el-form ref="form" :model="form" label-width="80px">
-                        <el-form-item label="姓名">
-                            <el-input v-model="form.username"></el-input>
-                        </el-form-item>
-                        <el-form-item label="密码">
-                            <el-input type="password" v-model="form.password"></el-input>
-                        </el-form-item>
-                        <el-form-item label="性别">
-                            <el-radio-group v-model="form.gender">
-                                <el-radio label="男"></el-radio>
-                                <el-radio label="女"></el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                        <el-form-item label="头像">
-                            <el-upload
-                                class="avatar-uploader"
-                                action="https://jsonplaceholder.typicode.com/posts/"
-                                :show-file-list="false"
-                                :on-success="handleAvatarSuccess"
-                                :before-upload="beforeAvatarUpload">
-                                <img v-if="imageUrl" :src="imageUrl" class="user-avatar">
-                                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                            </el-upload>
-                        </el-form-item>
-                    </el-form>
-                    <div slot="footer" class="dialog-footer">
-                        <el-button @click="dialogFormVisible = false">取 消</el-button>
-                        <el-button type="primary" @click="onSubmit">确 定</el-button>
-                    </div>
+                    <router-view></router-view>
                 </el-dialog>
             </div>
             <el-table
                 :data="tableData"
                 stripe
                 style="width: 100%"
-                :default-sort = "{prop: 'id', order: 'descending'}">
+                :default-sort = "{prop: 'id', order: 'descending'}"
+                v-loading="loading">
 
                                 <el-table-column
                     sortable
@@ -170,22 +143,14 @@
                   status:     null,
                 },
                 statusMap: [{value: this.$global.STATUS_FALSE, label: '禁用'}, {value: this.$global.STATUS_TRUE, label: '启用'}],
+                loading: false,
                 tableData: [],
                 totalCount: 0,
                 pageArgs:{
                   pageSize: 20,
                   currPage: 1,
                 },
-                dialogTableVisible: false,
-                dialogFormVisible: false,
-                form: {
-                    username: '',
-                    password: '',
-                    avatar: '',
-                    gender: '',
-                },
-                formLabelWidth: '120px',
-                imageUrl: ''
+                dialogFormVisible: true,
             }
         },
         methods:{
@@ -193,16 +158,20 @@
            * 请求列表数据
            **/
             async requestData(){
+                this.loading= true;
+                let pageArgs = {
+                  limit: this.pageArgs.pageSize,
+                  page: this.pageArgs.currPage,
+                };
+                let paramsAssign = Object.assign(pageArgs, this.selectArgs);
                 let condition = {
-                  params:{
-                    limit: this.pageArgs.pageSize,
-                    page: this.pageArgs.currPage,
-                  }
+                  params: paramsAssign
                 };
                 let resp = await this.$http.get('/user-admin/index', condition);
                 if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
                 this.tableData  = resp.data.data.list;
                 this.totalCount =  resp.data.data.count;
+                this.loading= false;
             },
           /**
            * 更改记录状态
@@ -268,38 +237,12 @@
            * 根据筛选条件搜索
            */
           async handleSearch(){
-              let pageArgs = {
-                limit: this.pageArgs.pageSize,
-                page: this.pageArgs.currPage,
-              };
-              let paramsAssign = Object.assign(pageArgs, this.selectArgs);
-            let condition = {
-              params: paramsAssign
-            };
-            let resp = await this.$http.get('/user-admin/index', condition);
-            if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
-            this.tableData  = resp.data.data.list;
-            this.totalCount =  resp.data.data.count;
+            this.requestData();
           },
             onSubmit()
             {
 
             },
-            handleAvatarSuccess(res, file) {
-                this.imageUrl = URL.createObjectURL(file.raw);
-            },
-            beforeAvatarUpload(file) {
-                const isJPG = file.type === 'image/jpeg';
-                const isLt2M = file.size / 1024 / 1024 < 2;
-
-                if (!isJPG) {
-                    this.$message.error('上传头像图片只能是 JPG 格式!');
-                }
-                if (!isLt2M) {
-                    this.$message.error('上传头像图片大小不能超过 2MB!');
-                }
-                return isJPG && isLt2M;
-            }
         }
     }
 </script>

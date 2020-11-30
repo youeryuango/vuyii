@@ -63,7 +63,7 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
      */
     public function search($params)
     {
-        $query = <?= isset($modelAlias) ? $modelAlias : $modelClass ?>::find()->asArray();
+        $query = <?= isset($modelAlias) ? $modelAlias : $modelClass ?>::find()->asArray()->orderBy('id DESC');
 
         // add conditions that should always apply here
 
@@ -74,7 +74,7 @@ class <?= $searchModelClass ?> extends <?= isset($modelAlias) ? $modelAlias : $m
             ],
         ]);
 
-        $this->load($params);
+        $this->load($params, '');
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
