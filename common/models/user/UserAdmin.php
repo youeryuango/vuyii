@@ -11,6 +11,7 @@ use yii\web\IdentityInterface;
  * This is the model class for table "user_admin".
  *
  * @property int $id
+ * @property string $account  登录账户
  * @property string $username 用户名
  * @property string $auth_key 授权 key
  * @property string|null $verification_token
@@ -40,12 +41,14 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'auth_key', 'password_hash', 'email', 'create_time'], 'required'],
+            [['account', 'username', 'auth_key', 'password_hash', 'email', 'create_time'], 'required'],
             [['status'], 'integer'],
             [['create_time'], 'safe'],
             [['username', 'password_hash', 'email'], 'string', 'max' => 255],
             [['verification_token'], 'string', 'max' => 500],
             [['auth_key'], 'string', 'max' => 10],
+            [['account'], 'string', 'min' => 6,'max' => 20],
+            [['account'],  'unique'],
             [['username'], 'unique'],
             [['auth_key'], 'unique'],
             [['email'], 'unique'],
@@ -59,6 +62,7 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     {
         return [
             'id' => 'ID',
+            'account' => '账户',
             'username' => '用户名',
             'auth_key' => '授权 key',
             'verification_token' => 'Verification Token',
@@ -97,12 +101,12 @@ class UserAdmin extends ActiveRecord implements IdentityInterface
     /**
      * Finds user by username
      *
-     * @param string $username
+     * @param string $account
      * @return static|null
      */
-    public static function findByUsername($username)
+    public static function findByUsername($account)
     {
-        return static::findOne(['username' => $username, 'status' => self::STATUS_TRUE]);
+        return static::findOne(['account' => $account, 'status' => self::STATUS_TRUE]);
     }
 
     /**

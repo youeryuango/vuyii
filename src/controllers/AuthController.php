@@ -23,8 +23,8 @@ class AuthController extends BaseController
         $request = \Yii::$app->request;
         if(!$request->isPost) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $postData = $request->post();
-        if(!isset($postData['username'], $postData['password']) || empty($postData['username']) || empty($postData['password'])) return FR::jsonResponse(FR::CODE_STATUS_PARAMS_ERROR);
-        $user = UserAdmin::findByUsername($postData['username']);
+        if(!isset($postData['account'], $postData['password']) || empty($postData['account']) || empty($postData['password'])) return FR::jsonResponse(FR::CODE_STATUS_PARAMS_ERROR);
+        $user = UserAdmin::findByUsername($postData['account']);
         if($user === null) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '未找到该用户！');
         if(!$user->validatePassword($postData['password'])) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '密码错误！');
         $token = parent::generateToken($user->auth_key);

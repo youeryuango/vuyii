@@ -5,8 +5,8 @@
                 <h2>后台管理系统</h2>
             </div>
             <el-form class="login_form" :model="LoginForm" :rules="rules" ref="loginForm">
-                <el-form-item prop="username">
-                    <el-input v-model="LoginForm.username" prefix-icon="el-icon-user"></el-input>
+                <el-form-item prop="account">
+                    <el-input v-model="LoginForm.account" prefix-icon="el-icon-user"></el-input>
                 </el-form-item>
                 <el-form-item prop="password">
                     <el-input  v-model="LoginForm.password" type="password" prefix-icon="el-icon-star-on"></el-input>
@@ -26,12 +26,12 @@
         data(){
             return {
                 LoginForm:{
-                    username:'',
+                    account:'',
                     password:''
                 },
                 rules:{
-                    username:[
-                        { required: true, message: '请输入用户名称', trigger: 'blur' },
+                    account:[
+                        { required: true, message: '请输入登录账户', trigger: 'blur' },
                     ],
                     password:[
                         { required: true, message: '请输入用户密码', trigger: 'blur' },
@@ -42,13 +42,13 @@
         },
         methods: {
             resetForm(){
-                this.$refs.loginForm.resetFields()
+                this.$refs.loginForm.resetFields();
             },
             submit(){
                 this.$refs.loginForm.validate(async valid => {
                     if (!valid) return;
-                    const resp = await this.$http.post('/auth/login', this.LoginForm);
-                    if (resp.data.code !== 10000) return this.$message.error(resp.data.msg);
+                    let resp = await this.$http.post('/auth/login', this.LoginForm);
+                    if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg);
                     this.$message.success('登录成功！');
                     window.sessionStorage.setItem('token', 'Bearer ' + resp.data.data.token);
                     this.$router.push('/home');

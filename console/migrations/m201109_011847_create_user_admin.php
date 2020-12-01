@@ -14,7 +14,8 @@ class m201109_011847_create_user_admin extends Migration
     {
         $this->createTable('{{%user_admin}}', [
             'id' => $this->primaryKey(),
-            'username' => $this->string()->notNull()->unique()->comment('用户名'),
+            'account' => $this->string(60)->notNull()->unique()->comment('登录账户'),
+            'username' => $this->string(60)->notNull()->unique()->comment('用户名'),
             'auth_key' => $this->string(10)->notNull()->unique()->comment('授权 key'),
             'verification_token' => $this->string(500)->defaultValue(null),
             'password_hash' => $this->string()->notNull()->comment('密码 Hash'),

@@ -56,7 +56,16 @@ class UserAdminController extends BaseController
     {
         if(!Yii::$app->request->isPost) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $model = new UserAdmin();
-        if(!$model->load(Yii::$app->request->post(), '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
+        $postData = Yii::$app->request->post();
+        if(!isset($postData['password']) || empty($postData['password'])) {
+            $postData['password'] = '123456';
+        }else{
+            if(mb_strlen($postData['password']) < 6 || mb_strlen($postData['password']) > 20) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '密码必须是 6-20 位！');
+        }
+        if(!$model->load($postData, '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
+        $model->auth_key    = Yii::$app->security->generateRandomString(10);
+        $model->create_time = date('Y-m-d H:i:s');
+        $model->password_hash = Yii::$app->security->generatePasswordHash($postData['password']);
         if(!$model->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '创建记录失败！原因为:' . current($model->getFirstErrors()));
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '创建记录成功！');
     }
@@ -80,6 +89,10 @@ class UserAdminController extends BaseController
         }
         if(!isset($params) || empty($params) || !is_array($params)) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '参数解析失败！');
         if(!$model->load($params, '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
+        if(isset($params['password']) && !empty($params['password'])){
+            if(mb_strlen($params['password']) < 6 || mb_strlen($params['password']) > 20) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '密码必须是 6-20 位！');
+            $model->password_hash = Yii::$app->security->generatePasswordHash($params['password']);
+        }
         if(!$model->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '更新记录失败！原因为:' . current($model->getFirstErrors()));
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '更新记录成功！');
     }

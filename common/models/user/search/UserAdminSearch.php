@@ -19,7 +19,7 @@ class UserAdminSearch extends UserAdmin
     {
         return [
             [['id'], 'integer'],
-            [['username', 'auth_key', 'password_hash', 'email', 'status', 'create_time'], 'safe'],
+            [['account', 'username', 'auth_key', 'password_hash', 'email', 'status', 'create_time'], 'safe'],
         ];
     }
 
@@ -69,6 +69,7 @@ class UserAdminSearch extends UserAdmin
 			$query->andFilterWhere(['between', 'create_time', $start, $end]);
 		};
         $query->andFilterWhere(['like', 'username', $this->username])
+            ->andFilterWhere(['like', 'account', $this->account])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'status', $this->status]);
 
