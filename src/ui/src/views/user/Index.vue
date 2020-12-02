@@ -247,6 +247,7 @@
        * 数据更新操作
        */
       async updateData(){
+        if (this.preUpdateId === null) return ;
         let resp = await this.$http.put('/user-admin/update?id=' + this.preUpdateId, this.FormData)
         if (resp.data.code !== this.$global.SUCCESS_CODE) {
           this.$message.error(resp.data.msg)
