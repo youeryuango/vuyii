@@ -22,8 +22,7 @@
                                 <el-option v-for="item in statusMap"
                                            :key="item.value"
                                            :label="item.label"
-                                           :value="item.value"
-                                >
+                                           :value="item.value">
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -54,7 +53,6 @@
                     style="width: 100%"
                     :default-sort="{prop: 'id', order: 'descending'}"
                     v-loading="loading">
-
                 <el-table-column
                         sortable
                         align="center"
@@ -62,7 +60,6 @@
                         label=""
                         width="180">
                 </el-table-column>
-                ,
                 <el-table-column
                         sortable
                         align="center"
@@ -70,7 +67,6 @@
                         label="账户"
                         width="180">
                 </el-table-column>
-                ,
                 <el-table-column
                         sortable
                         align="center"
@@ -78,7 +74,6 @@
                         label="用户名"
                         width="180">
                 </el-table-column>
-                ,
                 <el-table-column
                         sortable
                         align="center"
@@ -86,7 +81,6 @@
                         label="授权 key"
                         width="180">
                 </el-table-column>
-                ,
                 <el-table-column
                         sortable
                         align="center"
@@ -94,11 +88,10 @@
                         label="邮箱"
                         width="180">
                 </el-table-column>
-                ,
                 <el-table-column
                         align="center"
                         prop="status"
-                        label="状态 0禁用 1启用">
+                        label="状态">
                     <template slot-scope="scope">
                         <el-switch
                                 @change="changeStatus(scope.row)"
@@ -110,7 +103,6 @@
                         </el-switch>
                     </template>
                 </el-table-column>
-                ,
                 <el-table-column
                         sortable
                         align="center"
@@ -124,12 +116,18 @@
                     <template slot-scope="scope">
                         <el-row>
                             <el-tooltip class="item" effect="dark" content="修改" placement="top">
-                                <el-button type="primary" icon="el-icon-edit" size="small"
-                                           @click="update(scope.row)"></el-button>
+                                <el-button type="primary"
+                                           icon="el-icon-edit"
+                                           size="small"
+                                           @click="update(scope.row)">
+                                </el-button>
                             </el-tooltip>
                             <el-tooltip class="item" effect="dark" content="删除" placement="top">
-                                <el-button type="danger" icon="el-icon-delete" size="small"
-                                           @click="del(scope.row)"></el-button>
+                                <el-button type="danger"
+                                           icon="el-icon-delete"
+                                           size="small"
+                                           @click="del(scope.row)">
+                                </el-button>
                             </el-tooltip>
                         </el-row>
                     </template>
@@ -169,7 +167,9 @@
           create_time: '',
           status: null
         },
-        statusMap: [{ value: this.$global.STATUS_FALSE, label: '禁用' }, {
+        statusMap: [{
+          value: this.$global.STATUS_FALSE,
+          label: '禁用' }, {
           value: this.$global.STATUS_TRUE,
           label: '启用'
         }],

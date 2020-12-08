@@ -13,17 +13,17 @@ foreach ($tableSchema->columns as $column){
                         align="center"
                         prop="{$column->name}"
                         label="{$column->comment}">
-                        <template  slot-scope="scope">
-                            <el-switch
+                    <template slot-scope="scope">
+                        <el-switch
                                 @change="changeStatus(scope.row)"
                                 v-model="scope.row.{$column->name}"
                                 active-color="#13ce66"
                                 inactive-color="#ff4949"
                                 active-value="1"
                                 inactive-value="0">
-                            </el-switch>
-                        </template>
-                    </el-table-column>
+                        </el-switch>
+                    </template>
+                </el-table-column>
 EOL;
         }elseif(in_array($column->name, ['avatar', 'img', 'image', 'banner', 'photo', 'logo'])){
             $nodeData[] = <<<EOL
@@ -34,7 +34,7 @@ EOL;
                         <template slot-scope="scope">
                             <div class="block"><el-avatar :size="50" :src="scope.row.{$column->name}"></el-avatar></div>
                         </template>
-                    </el-table-column>
+                </el-table-column>
 EOL;
         }else{
             $nodeData[] = <<<EOL
@@ -62,18 +62,12 @@ $node_html = implode(",\n",$nodeData);
         <el-card class="box-card">
             <div slot="header" class="clearfix">
                 <el-row>
-                    <el-form class="filer-form" ref="filerForm"  label-width="130px" label-position="left" :inline="true">
+                    <el-form class="filer-form"
+                             ref="filerForm"
+                             label-width="130px"
+                             label-position="left"
+                             :inline="true">
                         <?= $generator->generateSearchField();?>
-                        <el-form-item label="选择主题">
-                            <el-select v-model="value" placeholder="请选择主题" :value="value">
-                                <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
                     </el-form>
                 </el-row>
                 <el-row>
@@ -126,10 +120,18 @@ $node_html = implode(",\n",$nodeData);
                     <template slot-scope="scope">
                         <el-row>
                             <el-tooltip class="item" effect="dark" content="修改" placement="top">
-                                <el-button type="primary" icon="el-icon-edit" size="small" @click="update(scope.row)"></el-button>
+                                <el-button type="primary"
+                                           icon="el-icon-edit"
+                                           size="small"
+                                           @click="update(scope.row)">
+                                </el-button>
                             </el-tooltip>
                             <el-tooltip class="item" effect="dark" content="删除" placement="top">
-                                <el-button type="danger" icon="el-icon-delete" size="small" @click="delete(scope.row)"></el-button>
+                                <el-button type="danger"
+                                           icon="el-icon-delete"
+                                           size="small"
+                                           @click="del(scope.row)">
+                                </el-button>
                             </el-tooltip>
                         </el-row>
                     </template>
@@ -140,10 +142,10 @@ $node_html = implode(",\n",$nodeData);
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                     :current-page="1"
-                    :page-sizes="[100, 200, 300, 400]"
-                    :page-size="100"
+                    :page-sizes="[20, 60, 80, 100]"
+                    :page-size="20"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="400">
+                    :total="totalCount">
                 </el-pagination>
             </div>
         </el-card>
@@ -153,27 +155,20 @@ $node_html = implode(",\n",$nodeData);
 <script>
     export default {
         name: "List",
-        created(){
-            this.requestData();
+        components:{
+            Form
+        },
+        created() {
+            this.requestData()
         },
         data(){
             return {
-                options: [{
-                    value: '选项1',
-                    label: 'a'
-                }, {
-                    value: '选项2',
-                    label: 'b'
-                }, {
-                    value: '选项3',
-                    label: 'c'
-                }, {
-                    value: '选项4',
-                    label: 'd'
-                }, {
-                    value: '选项5',
-                    label: 'e'
-                }],
+                selectArgs: {
+                    account: '',
+                    username: '',
+                    create_time: '',
+                    status: null
+                },
                 value: '',
                 tableData: [
                     {'id': '3', 'avatar': 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1604659215655&di=f70a6d161d8f3fe643a6512f4ae59399&imgtype=0&src=http%3A%2F%2Ffjmingfeng.com%2Fimg%2F1%2F9549023851%2F51%2F349e611701cd0726964adf0082b600d2%2F9050751951%2F4075712993.jpg', 'name': '张文杰', 'gender': '男', 'status': true},

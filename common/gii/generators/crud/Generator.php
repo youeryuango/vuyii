@@ -414,8 +414,11 @@ EOL;
                         case self::TYPE_SELECT:
                             $fields .= <<<EOL
                         <el-form-item label="选择{$columnName}">
-                            <el-select placeholder="请选择{$columnName}">
-                                <el-option>
+                            <el-select placeholder="请选择{$columnName}" clearable v-model="selectArgs.{$column}">
+                                <el-option v-for="item in statusMap"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value">
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -425,17 +428,19 @@ EOL;
                             $fields .= <<<EOL
                         <el-form-item label="选择{$columnName}">
                             <el-date-picker
-                              type="date"
-                              placeholder="选择日期">
+                                    v-model="selectArgs.{$column}"
+                                    value=""
+                                    type="date"
+                                    placeholder="选择日期">
                             </el-date-picker>
                         </el-form-item>
 EOL;
                             break;
                         default:
                             $fields .= <<<EOL
-                <el-form-item prop="{$column}" label="请输入关键词">
-                    <el-input v-model="selectForm.{$column}"></el-input>
-                </el-form-item>
+                        <el-form-item prop="{$column}" label="请输入{$columnName}">
+                            <el-input v-model="selectArgs.{$column}"></el-input>
+                        </el-form-item>
 EOL;
                     }
                     $fields .= "
