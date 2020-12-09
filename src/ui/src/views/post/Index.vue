@@ -1,71 +1,3 @@
-<?php
-
-use yii\helpers\Url;
-use yii\helpers\Inflector;
-use yii\helpers\StringHelper;
-
-$modelClass  = Inflector::camel2id(StringHelper::basename($generator->modelClass));
-$indexUrl    = Url::to(["/$modelClass/index"]);
-$tableSchema = $generator->getTableSchema();
-foreach ($tableSchema->columns as $column) {
-    if(empty($generator->listFields) || (!empty($generator->listFields) && in_array($column->name, $generator->listFields))) {
-        if(in_array($column->name, ['status', 'state']) || in_array(substr($column->name, 0, 4), ['is_', 'if_'])) {
-            $nodeData[] = <<<EOL
-                <el-table-column
-                        align="center"
-                        prop="{$column->name}"
-                        label="{$column->comment}">
-                    <template slot-scope="scope">
-                        <el-switch
-                                @change="changeStatus(scope.row)"
-                                v-model="scope.row.{$column->name}"
-                                active-color="#13ce66"
-                                inactive-color="#ff4949"
-                                active-value="1"
-                                inactive-value="0">
-                        </el-switch>
-                    </template>
-                </el-table-column>
-EOL;
-        } elseif(in_array($column->name, ['avatar', 'img', 'image', 'banner', 'photo', 'logo'])) {
-            $nodeData[] = <<<EOL
-                <el-table-column
-                        align="center"
-                        prop="{$column->name}"
-                        label="{$column->comment}">
-                        <template slot-scope="scope">
-                            <div class="block"><el-avatar :size="50" :src="scope.row.{$column->name}"></el-avatar></div>
-                        </template>
-                </el-table-column>
-EOL;
-        } else {
-            $nodeData[] = <<<EOL
-                <el-table-column
-                    sortable
-                    align="center"
-                    prop="{$column->name}"
-                    label="{$column->comment}"
-                    width="180">
-                </el-table-column>
-EOL;
-        }
-
-    }
-}
-$node_html = implode(",\n", $nodeData);
-// search fields
-$searchArgs = '';
-foreach ($generator->searchFields as $searchField) {
-    if(empty($searchArgsAry)) {
-        $searchArgsAry[] = $searchField . ": ''";
-    } else {
-        $searchArgsAry[] = '                    ' . $searchField . ": ''";
-    }
-}
-if(!empty($searchArgsAry)) {
-    $searchArgs = implode(",\n", $searchArgsAry) . "\n";
-}
-?>
 <template>
     <div>
         <el-breadcrumb separator="/">
@@ -81,7 +13,46 @@ if(!empty($searchArgsAry)) {
                              label-width="130px"
                              label-position="left"
                              :inline="true">
-                        <?= $generator->generateSearchField(); ?>
+                                                <el-form-item prop="title" label="请输入模型名称">
+                            <el-input v-model="selectArgs.title"></el-input>
+                        </el-form-item>
+                    
+                        <el-form-item prop="keywords" label="请输入Keywords">
+                            <el-input v-model="selectArgs.keywords"></el-input>
+                        </el-form-item>
+                    
+                        <el-form-item label="选择Category Id">
+                            <el-select placeholder="请选择Category Id" clearable v-model="selectArgs.category_id">
+                                <el-option v-for="item in statusMap"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    
+                        <el-form-item label="选择Status">
+                            <el-select placeholder="请选择Status" clearable v-model="selectArgs.status">
+                                <el-option v-for="item in statusMap"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    
+			
+                        <el-form-item label="选择User Id">
+                            <el-select placeholder="请选择User Id" clearable v-model="selectArgs.user_id">
+                                <el-option v-for="item in statusMap"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    
+			
                     </el-form>
                 </el-row>
                 <el-row>
@@ -100,8 +71,91 @@ if(!empty($searchArgsAry)) {
                     style="width: 100%"
                     :default-sort="{prop: 'id', order: 'descending'}">
 
-                <?= $node_html ?>
-
+                                <el-table-column
+                    sortable
+                    align="center"
+                    prop="id"
+                    label=""
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="title"
+                    label="标题"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="desc"
+                    label="简介"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="keywords"
+                    label="关键词"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="content"
+                    label="内容"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="category_id"
+                    label="类型编号"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                        align="center"
+                        prop="status"
+                        label="状态 0禁用 1启用">
+                    <template slot-scope="scope">
+                        <el-switch
+                                @change="changeStatus(scope.row)"
+                                v-model="scope.row.status"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                active-value="1"
+                                inactive-value="0">
+                        </el-switch>
+                    </template>
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="base_view_num"
+                    label="基础阅读量"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="actual_view_num"
+                    label="实际阅读量"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="user_id"
+                    label="创建人编号"
+                    width="180">
+                </el-table-column>,
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="create_time"
+                    label="创建时间"
+                    width="180">
+                </el-table-column>
                 <el-table-column
                         align="center"
                         label="操作">
@@ -152,7 +206,11 @@ if(!empty($searchArgsAry)) {
         data() {
             return {
                 selectArgs: {
-                    <?=$searchArgs?>
+                    title: '',
+                    keywords: '',
+                    category_id: '',
+                    status: '',
+                    user_id: ''
                 },
                 statusMap: [{
                     value: this.$global.STATUS_FALSE,

@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Login from "../components/Login"
 import Home from "../components/Home"
 import UserList from "../views/user/Index"
-// import PostList from "../components/post/List"
+import PostList from "../views/post/Index"
 
 const routes = [
   {
@@ -23,10 +23,10 @@ const routes = [
         path:'/user-list',
         component: UserList,
       },
-      // {
-      //   path:'/post-list',
-      //   component: PostList,
-      // },
+      {
+        path:'/post-list',
+        component: PostList,
+      },
     ]
   }
 ];
