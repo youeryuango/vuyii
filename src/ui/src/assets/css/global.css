@@ -23,7 +23,7 @@ html,body,#app{
     margin-top: 15px;
 }
 .el-dialog{
-    width: 30%;
+    width: 40%;
 }
 .avatar-uploader .el-upload {
     border: 1px dashed #d9d9d9;

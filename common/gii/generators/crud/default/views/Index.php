@@ -85,8 +85,14 @@ if(!empty($searchArgsAry)) {
                     </el-form>
                 </el-row>
                 <el-row>
-                    <el-button type="primary" icon="el-icon-search" size="mini">搜索</el-button>
-                    <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini"
+                    <el-button type="primary"
+                               icon="el-icon-search"
+                               size="mini"
+                               @click="handleSearch">搜索
+                    </el-button>
+                    <el-button type="primary"
+                               icon="el-icon-circle-plus-outline"
+                               size="mini"
                                @click="dialogFormVisible = true">新增
                     </el-button>
                 </el-row>
@@ -104,7 +110,8 @@ if(!empty($searchArgsAry)) {
 
                 <el-table-column
                         align="center"
-                        label="操作">
+                        label="操作"
+                        width="180">
                     <template slot-scope="scope">
                         <el-row>
                             <el-tooltip class="item" effect="dark" content="修改" placement="top">
@@ -141,9 +148,10 @@ if(!empty($searchArgsAry)) {
 </template>
 
 <script>
+    import Form from './Form'
     export default {
         name: "List",
-        components: {
+        components:{
             Form
         },
         created() {
@@ -195,7 +203,7 @@ if(!empty($searchArgsAry)) {
                 let condition = {
                     params: paramsAssign
                 }
-                let resp = await this.$http.get('/user-admin/index', condition)
+                let resp = await this.$http.get('<?=Url::to(["/$modelClass/index"])?>', condition)
                 if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg)
                 this.tableData = resp.data.data.list
                 this.totalCount = resp.data.data.count
@@ -208,7 +216,7 @@ if(!empty($searchArgsAry)) {
                 let condition = {
                     status: obj.status ? this.$global.STATUS_FALSE : this.$global.STATUS_TRUE
                 }
-                let resp = await this.$http.put('/user-admin/update?id=' + obj.id, condition)
+                let resp = await this.$http.put('<?=Url::to(["/$modelClass/update"])?>?id=' + obj.id, condition)
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
                     this.$message.error(resp.data.msg)
                 } else {
@@ -236,13 +244,14 @@ if(!empty($searchArgsAry)) {
              */
             async updateData() {
                 if (this.preUpdateId === null) return;
-                let resp = await this.$http.put('/user-admin/update?id=' + this.preUpdateId, this.FormData)
+                let resp = await this.$http.put('<?=Url::to(["/$modelClass/update"])?>?id=' + this.preUpdateId, this.FormData)
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
-                    this.$message.error(resp.data.msg)
+                    this.$refs.Form.ifDisabled = false;
+                    this.$message.error(resp.data.msg);
                 } else {
-                    this.$message.success('修改记录成功！')
+                    this.$message.success('修改记录成功！');
+                    this.closeDialog();
                 }
-                this.$refs.Form.ifDisabled = false;
                 return this.requestData();
             },
             /**
@@ -254,7 +263,7 @@ if(!empty($searchArgsAry)) {
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.$http.delete('/user-admin/delete?id=' + obj.id).then(resp => {
+                    this.$http.delete('<?=Url::to(["/$modelClass/delete"])?>?id=' + obj.id).then(resp => {
                         if (resp.data.code !== this.$global.SUCCESS_CODE) {
                             this.$message.error(resp.data.msg)
                         } else {
@@ -273,13 +282,14 @@ if(!empty($searchArgsAry)) {
              * 创建一条新的用户记录
              */
             async createRecord() {
-                let resp = await this.$http.post('/user-admin/create', this.FormData);
+                let resp = await this.$http.post('<?=Url::to(["/$modelClass/create"])?>', this.FormData);
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
-                    return this.$message.error(resp.data.msg);
+                    this.$refs.Form.ifDisabled = false;
+                    this.$message.error(resp.data.msg);
                 } else {
                     this.$message.success('新增用户成功！');
+                    this.closeDialog();
                 }
-                this.$refs.Form.ifDisabled = false;
                 return this.requestData();
             },
             /**
@@ -315,7 +325,6 @@ if(!empty($searchArgsAry)) {
                 } else {
                     this.updateData();
                 }
-                this.closeDialog();
             },
             /**
              * 关闭子组件表单弹框

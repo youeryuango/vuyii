@@ -6,7 +6,7 @@ use Yii;
 use src\components\FormatResponse as FR;
 use common\models\post\Post;
 use common\models\post\search\PostSearch;
-use src\controllers\BaseController;s
+use src\controllers\BaseController;
 use yii\helpers\Json;
 /**
  * PostController implements the CRUD actions for Post model.
@@ -57,6 +57,8 @@ class PostController extends BaseController
         if(!Yii::$app->request->isPost) return FR::jsonResponse(FR::CODE_STATUS_REQUEST_ERROR);
         $model = new Post();
         if(!$model->load(Yii::$app->request->post(), '')) return FR::jsonResponse(FR::CODE_STATUS_FAILED, '载入数据失败！');
+        $model->user_id = $this->user->id;
+        $model->create_time = date('Y-m-d H:i:s');
         if(!$model->save()) return FR::jsonResponse(FR::CODE_STATUS_SYSTEM_ERROR, '创建记录失败！原因为:' . current($model->getFirstErrors()));
         return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '创建记录成功！');
     }

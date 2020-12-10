@@ -36,7 +36,7 @@ EOL;
             $formData[] = <<<EOL
                 <el-form-item label="选择{$comment}">
                     <el-select placeholder="请选择{$comment}" clearable v-model="form.{$formField}">
-                        <el-option></el-option>
+                        <el-option value=""></el-option>
                     </el-select>
                 </el-form-item>
 EOL;
@@ -60,7 +60,7 @@ EOL;
         }
     }
     if(!empty($formData)) {
-        $formStr = implode(",\n", $formData) . "\n";
+        $formStr = implode("\n", $formData);
     }
     if(!empty($formArgsAry)) {
         $formArgs = implode(",\n", $formArgsAry) . "\n";

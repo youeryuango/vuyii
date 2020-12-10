@@ -38,8 +38,14 @@
                     </el-form>
                 </el-row>
                 <el-row>
-                    <el-button type="primary" icon="el-icon-search" size="mini" @click="handleSearch">搜索</el-button>
-                    <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini"
+                    <el-button type="primary"
+                               icon="el-icon-search"
+                               size="mini"
+                               @click="handleSearch">搜索
+                    </el-button>
+                    <el-button type="primary"
+                               icon="el-icon-circle-plus-outline"
+                               size="mini"
                                @click="dialogFormVisible = true">新增
                     </el-button>
                 </el-row>

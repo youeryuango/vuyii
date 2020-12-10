@@ -36,7 +36,7 @@ use <?= ltrim($generator->searchModelClass, '\\') . (isset($searchModelAlias) ? 
 <?php else: ?>
 use yii\data\ActiveDataProvider;
 <?php endif; ?>
-use <?= ltrim($generator->baseControllerClass, '\\') ?>;s
+use <?= ltrim($generator->baseControllerClass, '\\') ?>;
 use yii\helpers\Json;
 /**
  * <?= $controllerClass ?> implements the CRUD actions for <?= $modelClass ?> model.
