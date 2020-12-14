@@ -1,89 +1,3 @@
-<?php
-
-use yii\helpers\Url;
-use yii\helpers\Inflector;
-use yii\helpers\StringHelper;
-
-$modelClass  = Inflector::camel2id(StringHelper::basename($generator->modelClass));
-$indexUrl    = Url::to(["/$modelClass/index"]);
-$tableSchema = $generator->getTableSchema();
-$defaultSwitchAttr = 'status';
-foreach ($tableSchema->columns as $column) {
-    if(empty($generator->listFields) || (!empty($generator->listFields) && in_array($column->name, $generator->listFields))) {
-        if(in_array($column->name, ['status', 'state']) || in_array(substr($column->name, 0, 3), ['is_', 'if_'])) {
-            $defaultSwitchAttr = $column->name;
-            $nodeData[] = <<<EOL
-                <el-table-column
-                        align="center"
-                        prop="{$column->name}"
-                        label="{$column->comment}">
-                    <template slot-scope="scope">
-                        <el-switch
-                                @change="changeStatus(scope.row)"
-                                v-model="scope.row.{$column->name}"
-                                active-color="#13ce66"
-                                inactive-color="#ff4949"
-                                active-value="1"
-                                inactive-value="0">
-                        </el-switch>
-                    </template>
-                </el-table-column>
-EOL;
-        } elseif(in_array($column->name, ['avatar', 'img', 'image', 'banner', 'photo', 'logo'])) {
-            $nodeData[] = <<<EOL
-                <el-table-column
-                        align="center"
-                        prop="{$column->name}"
-                        label="{$column->comment}">
-                        <template slot-scope="scope">
-                            <div class="block"><el-avatar :size="50" :src="scope.row.{$column->name}"></el-avatar></div>
-                        </template>
-                </el-table-column>
-EOL;
-        } else {
-            $nodeData[] = <<<EOL
-                <el-table-column
-                    sortable
-                    align="center"
-                    prop="{$column->name}"
-                    label="{$column->comment}"
-                    width="180">
-                </el-table-column>
-EOL;
-        }
-
-    }
-}
-$node_html = implode(",\n", $nodeData);
-// search fields
-$searchArgs = '';
-if(!empty($generator->searchFields)) {
-    foreach ($generator->searchFields as $searchField) {
-        if(empty($searchArgsAry)) {
-            $searchArgsAry[] = $searchField . ": ''";
-        } else {
-            $searchArgsAry[] = '                    ' . $searchField . ": ''";
-        }
-    }
-    if(!empty($searchArgsAry)) {
-        $searchArgs = implode(",\n", $searchArgsAry) . "\n";
-    }
-}
-$formArgs = '';
-$formArgsAry = [];
-if(!empty($generator->formFields)) {
-    foreach ($generator->formFields as $formField) {
-        if(empty($formArgsAry)) {
-            $formArgsAry[] = $formField . ": obj." . $formField;
-        } else {
-            $formArgsAry[] = '                    ' . $formField . ": obj." . $formField;
-        }
-    }
-    if(!empty($formArgsAry)) {
-        $formArgs = implode(",\n", $formArgsAry) . "\n";
-    }
-}
-?>
 <template>
     <div>
         <el-breadcrumb separator="/">
@@ -99,7 +13,21 @@ if(!empty($generator->formFields)) {
                              label-width="130px"
                              label-position="left"
                              :inline="true">
-                        <?= $generator->generateSearchField(); ?>
+                        <el-form-item prop="name" label="请输入名称">
+                            <el-input v-model="selectArgs.name"></el-input>
+                        </el-form-item>
+                    
+                        <el-form-item label="选择是否可用">
+                            <el-select placeholder="请选择是否可用" clearable v-model="selectArgs.is_use">
+                                <el-option v-for="item in statusMap"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    
+			
                     </el-form>
                 </el-row>
                 <el-row>
@@ -125,11 +53,45 @@ if(!empty($generator->formFields)) {
                     :default-sort="{prop: 'id', order: 'descending'}"
                     v-loading="loading">
 
-                <?= $node_html ?>
-
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="id"
+                    label=""
+                    width="180">
+                </el-table-column>
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="name"
+                    label="名称">
+                </el-table-column>
                 <el-table-column
                         align="center"
-                        label="操作">
+                        prop="is_use"
+                        label="是否可用">
+                    <template slot-scope="scope">
+                        <el-switch
+                                @change="changeStatus(scope.row)"
+                                v-model="scope.row.is_use"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                active-value="1"
+                                inactive-value="0">
+                        </el-switch>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    sortable
+                    align="center"
+                    prop="create_time"
+                    label="创建时间"
+                    width="180">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        label="操作"
+                        width="180">
                     <template slot-scope="scope">
                         <el-row>
                             <el-tooltip class="item" effect="dark" content="修改" placement="top">
@@ -178,14 +140,15 @@ if(!empty($generator->formFields)) {
         data() {
             return {
                 selectArgs: {
-                    <?=$searchArgs?>
+                    name: '',
+                    is_use: ''
                 },
                 statusMap: [{
                     value: this.$global.STATUS_FALSE,
-                    label: '选项0'
+                    label: '禁用'
                 }, {
                     value: this.$global.STATUS_TRUE,
-                    label: '选项1'
+                    label: '启用'
                 }],
                 loading: false,
                 tableData: [],
@@ -221,7 +184,7 @@ if(!empty($generator->formFields)) {
                 let condition = {
                     params: paramsAssign
                 }
-                let resp = await this.$http.get('<?=Url::to(["/$modelClass/index"])?>', condition)
+                let resp = await this.$http.get('/category/index', condition)
                 if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg)
                 this.tableData = resp.data.data.list
                 this.totalCount = resp.data.data.count
@@ -232,9 +195,9 @@ if(!empty($generator->formFields)) {
              **/
             async changeStatus(obj) {
                 let condition = {
-                    <?=$defaultSwitchAttr?>: obj.<?=$defaultSwitchAttr?> === this.$global.STATUS_TRUE ? this.$global.STATUS_TRUE : this.$global.STATUS_FALSE
+                    is_use: obj.is_use === this.$global.STATUS_TRUE ? this.$global.STATUS_TRUE : this.$global.STATUS_FALSE
                 }
-                let resp = await this.$http.put('<?=Url::to(["/$modelClass/update"])?>?id=' + obj.id, condition)
+                let resp = await this.$http.put('/category/update?id=' + obj.id, condition)
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
                     this.$message.error(resp.data.msg)
                 } else {
@@ -250,7 +213,7 @@ if(!empty($generator->formFields)) {
                 this.preUpdateId = obj.id;
                 this.$nextTick(() => {
                     this.$refs.Form.form = {
-                        <?=$formArgs?>
+                        name: obj.name
                     };
                 })
             },
@@ -259,7 +222,7 @@ if(!empty($generator->formFields)) {
              */
             async updateData() {
                 if (this.preUpdateId === null) return;
-                let resp = await this.$http.put('<?=Url::to(["/$modelClass/update"])?>?id=' + this.preUpdateId, this.FormData)
+                let resp = await this.$http.put('/category/update?id=' + this.preUpdateId, this.FormData)
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
                     this.$refs.Form.ifDisabled = false;
                     this.$message.error(resp.data.msg);
@@ -278,7 +241,7 @@ if(!empty($generator->formFields)) {
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    this.$http.delete('<?=Url::to(["/$modelClass/delete"])?>?id=' + obj.id).then(resp => {
+                    this.$http.delete('/category/delete?id=' + obj.id).then(resp => {
                         if (resp.data.code !== this.$global.SUCCESS_CODE) {
                             this.$message.error(resp.data.msg)
                         } else {
@@ -297,7 +260,7 @@ if(!empty($generator->formFields)) {
              * 创建一条新的用户记录
              */
             async createRecord() {
-                let resp = await this.$http.post('<?=Url::to(["/$modelClass/create"])?>', this.FormData);
+                let resp = await this.$http.post('/category/create', this.FormData);
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
                     this.$refs.Form.ifDisabled = false;
                     this.$message.error(resp.data.msg);

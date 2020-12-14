@@ -175,7 +175,8 @@
         },
         statusMap: [{
           value: this.$global.STATUS_FALSE,
-          label: '禁用' }, {
+          label: '禁用'
+        }, {
           value: this.$global.STATUS_TRUE,
           label: '启用'
         }],
@@ -194,7 +195,13 @@
     watch:{
       dialogFormVisible: {
         handler(newVal) {
-          if (!newVal) this.preUpdateId = null;
+          this.$refs.Form.ifDisabled = false;
+          if (!newVal) {
+            this.preUpdateId = null;
+          }
+          else {
+            this.getHasRelatedRole();
+          }
         },
         deep: true
       }
@@ -224,7 +231,7 @@
        **/
       async changeStatus(obj) {
         let condition = {
-          status: obj.status ? this.$global.STATUS_FALSE : this.$global.STATUS_TRUE
+          status: obj.status === this.$global.STATUS_TRUE ? this.$global.STATUS_TRUE : this.$global.STATUS_FALSE
         }
         let resp = await this.$http.put('/user-admin/update?id=' + obj.id, condition)
         if (resp.data.code !== this.$global.SUCCESS_CODE) {
@@ -299,6 +306,11 @@
         }
         this.$refs.Form.ifDisabled = false;
         return this.requestData();
+      },
+      async getHasRelatedRole(){
+        const {data} = await this.$http.get('/user-admin/has-related-roles?userId=' + this.preUpdateId)
+        console.log(data);
+        // if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg)
       },
       /**
        * 监听分页条数变化

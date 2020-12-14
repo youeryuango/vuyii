@@ -9,20 +9,8 @@
                         background-color="#545c64"
                         text-color="#fff"
                         active-text-color="#ffd04b">
-                    <el-submenu index="2">
-                        <template slot="title">我的工作台</template>
-                        <el-menu-item index="2-1">选项1</el-menu-item>
-                        <el-menu-item index="2-2">选项2</el-menu-item>
-                        <el-menu-item index="2-3">选项3</el-menu-item>
-                        <el-submenu index="2-4">
-                            <template slot="title">选项4</template>
-                            <el-menu-item index="2-4-1">选项1</el-menu-item>
-                            <el-menu-item index="2-4-2">选项2</el-menu-item>
-                            <el-menu-item index="2-4-3">选项3</el-menu-item>
-                        </el-submenu>
-                    </el-submenu>
-                    <el-menu-item index="3" disabled>消息中心</el-menu-item>
-                    <el-menu-item index="4"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item>
+                    <el-menu-item index="1">用户中心</el-menu-item>
+                    <el-menu-item index="4">权限管理</el-menu-item>
                 </el-menu>
             </el-header>
             <el-container>
@@ -35,15 +23,24 @@
                                 text-color="#fff"
                                 active-text-color="#ffd04b"
                                 router
-                                unique-opened
-                        >
-                            <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
-                                <template slot="title">
-                                    <i class="el-icon-location"></i>
-                                    <span>{{item.title}}</span>
+                                unique-opened>
+                            <template v-for="item in menuList">
+                                <template v-if="item.child !== undefined">
+                                    <el-submenu :index="item.path" :key="item.id">
+                                        <template slot="title">
+                                            <i :class="item.icon"></i>
+                                            <span>{{item.title}}</span>
+                                        </template>
+                                        <el-menu-item :index="subItem.path" v-for="subItem in item.child" :key="subItem.id">{{subItem.title}}</el-menu-item>
+                                    </el-submenu>
                                 </template>
-                                <el-menu-item :index="subItem.path" v-for="subItem in item.child" :key="subItem.id">{{subItem.title}}</el-menu-item>
-                            </el-submenu>
+                                <template v-else>
+                                    <el-menu-item :index="item.path" :key="item.id">
+                                        <i :class="item.icon"></i>
+                                        <span slot="title">{{item.title}}</span>
+                                    </el-menu-item>
+                                </template>
+                            </template>
                         </el-menu>
                     </el-col>
                 </el-aside>
@@ -65,6 +62,7 @@
                         'id': 1,
                         'title': '用户管理',
                         'path': '/users',
+                        'icon': 'el-icon-user',
                         'child': [
                             {'id': 2, 'title': '用户列表', 'path': '/user-list'}
                         ]
@@ -73,9 +71,22 @@
                         'id': 3,
                         'title': '内容管理',
                         'path': '/posts',
+                        'icon': 'el-icon-document',
                         'child': [
                             {'id': 4, 'title': '内容列表', 'path': '/post-list'}
                         ]
+                    },
+                    {
+                        'id': 4,
+                        'title': '分类管理',
+                        'path': '/category-list',
+                        'icon': 'el-icon-more-outline\n',
+                    },
+                    {
+                        'id': 6,
+                        'title': '权限管理',
+                        'path': '/sys-role-list',
+                        'icon': 'el-icon-more-outline\n',
                     },
                 ]
             }

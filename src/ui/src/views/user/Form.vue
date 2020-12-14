@@ -13,6 +13,15 @@
             <el-form-item label="邮箱" prop="email">
                 <el-input v-model="form.email"></el-input>
             </el-form-item>
+            <el-form-item label="角色" prop="roles">
+                <el-select placeholder="请选择Status" clearable v-model="form.roles" multiple collapse-tags>
+                    <el-option v-for="item in rolesMap"
+                               :key="item.id"
+                               :label="item.name"
+                               :value="item.id">
+                    </el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item>
                 <el-button @click="changeParentDialog">取 消</el-button>
                 <el-button type="primary" @click="submitForm" :disabled="ifDisabled">确 定</el-button>
@@ -34,7 +43,9 @@ import * as Validate from '../../utils/validate'
           username: '',
           password: '',
           email: '',
+          roles: []
         },
+        rolesMap: [],
         rules:{
           account:[
             { required: true, message: '请输入登录账户', trigger: 'blur' },
@@ -46,9 +57,12 @@ import * as Validate from '../../utils/validate'
           email:[
             { required: true, message: '请输入用户邮箱', trigger: 'blur' },
             { validator: Validate.validateEMail}
-          ]
+          ],
         }
       }
+    },
+    created(){
+        this.renderRoles();
     },
     methods:{
       submitForm(){
@@ -63,6 +77,15 @@ import * as Validate from '../../utils/validate'
       },
       resetForm(){
         this.$refs.form.resetFields();
+      },
+      /**
+       * 渲染角色表单
+       * @returns {Promise<ElMessageComponent>}
+       */
+      async renderRoles(){
+        let resp = await this.$http.get('/sys-role/get-roles')
+        if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg)
+        this.rolesMap = resp.data.data.roles;
       }
     },
     mounted() {

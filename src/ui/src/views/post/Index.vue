@@ -13,26 +13,22 @@
                              label-width="130px"
                              label-position="left"
                              :inline="true">
-                                                <el-form-item prop="title" label="请输入模型名称">
+                        <el-form-item prop="title" label="请输入标题">
                             <el-input v-model="selectArgs.title"></el-input>
                         </el-form-item>
                     
-                        <el-form-item prop="keywords" label="请输入Keywords">
+                        <el-form-item prop="keywords" label="请输入关键词">
                             <el-input v-model="selectArgs.keywords"></el-input>
                         </el-form-item>
                     
-                        <el-form-item label="选择Category Id">
-                            <el-select placeholder="请选择Category Id" clearable v-model="selectArgs.category_id">
-                                <el-option v-for="item in statusMap"
-                                           :key="item.value"
-                                           :label="item.label"
-                                           :value="item.value">
-                                </el-option>
+                        <el-form-item label="选择分类">
+                            <el-select placeholder="请选择分类" clearable v-model="selectArgs.category_id">
+                                <el-option value="1">Default</el-option>
                             </el-select>
                         </el-form-item>
                     
-                        <el-form-item label="选择Status">
-                            <el-select placeholder="请选择Status" clearable v-model="selectArgs.status">
+                        <el-form-item label="选择可用状态">
+                            <el-select placeholder="请选择可用状态" clearable v-model="selectArgs.status">
                                 <el-option v-for="item in statusMap"
                                            :key="item.value"
                                            :label="item.label"
@@ -40,19 +36,6 @@
                                 </el-option>
                             </el-select>
                         </el-form-item>
-
-
-                        <el-form-item label="选择User Id">
-                            <el-select placeholder="请选择User Id" clearable v-model="selectArgs.user_id">
-                                <el-option v-for="item in statusMap"
-                                           :key="item.value"
-                                           :label="item.label"
-                                           :value="item.value">
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    
-			
                     </el-form>
                 </el-row>
                 <el-row>
@@ -75,9 +58,10 @@
                     :data="tableData"
                     stripe
                     style="width: 100%"
-                    :default-sort="{prop: 'id', order: 'descending'}">
+                    :default-sort="{prop: 'id', order: 'descending'}"
+                    v-loading="loading">
 
-                                <el-table-column
+                <el-table-column
                     sortable
                     align="center"
                     prop="id"
@@ -122,7 +106,7 @@
                 <el-table-column
                         align="center"
                         prop="status"
-                        label="状态 0禁用 1启用">
+                        label="状态">
                     <template slot-scope="scope">
                         <el-switch
                                 @change="changeStatus(scope.row)"
@@ -222,10 +206,10 @@
                 },
                 statusMap: [{
                     value: this.$global.STATUS_FALSE,
-                    label: '0'
+                    label: '禁用'
                 }, {
                     value: this.$global.STATUS_TRUE,
-                    label: '1'
+                    label: '启用'
                 }],
                 loading: false,
                 tableData: [],
@@ -272,9 +256,9 @@
              **/
             async changeStatus(obj) {
                 let condition = {
-                    status: obj.status ? this.$global.STATUS_FALSE : this.$global.STATUS_TRUE
+                    status: obj.status === this.$global.STATUS_TRUE ? this.$global.STATUS_TRUE : this.$global.STATUS_FALSE
                 }
-                let resp = await this.$http.put('/post/update?id=' + obj.id, condition)
+                let resp = await this.$http.put('/post/update?id=' + obj.id, condition);
                 if (resp.data.code !== this.$global.SUCCESS_CODE) {
                     this.$message.error(resp.data.msg)
                 } else {
@@ -290,10 +274,12 @@
                 this.preUpdateId = obj.id;
                 this.$nextTick(() => {
                     this.$refs.Form.form = {
-                        account: obj.account,
-                        username: obj.username,
-                        email: obj.email,
-                        password: ''
+                        title: obj.title,
+                        desc: obj.desc,
+                        keywords: obj.keywords,
+                        content: obj.content,
+                        category_id: obj.category_id,
+                        base_view_num: obj.base_view_num,
                     };
                 })
             },

@@ -4,6 +4,8 @@ import Login from "../components/Login"
 import Home from "../components/Home"
 import UserList from "../views/user/Index"
 import PostList from "../views/post/Index"
+import CategoryList from "../views/category/Index"
+import SysRoleList from "../views/sys-role/Index"
 
 const routes = [
   {
@@ -26,6 +28,14 @@ const routes = [
       {
         path:'/post-list',
         component: PostList,
+      },
+      {
+        path:'/category-list',
+        component: CategoryList,
+      },
+      {
+        path:'/sys-role-list',
+        component: SysRoleList,
       },
     ]
   }
