@@ -139,7 +139,7 @@
         watch: {
             dialogFormVisible: {
                 handler(newVal) {
-                    this.$refs.Form.ifDisabled = false;
+                    if (this.$refs.Form !== undefined) this.$refs.Form.ifDisabled = false;
                     if (!newVal) this.preUpdateId = null;
                 },
                 deep: true

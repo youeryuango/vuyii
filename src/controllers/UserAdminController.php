@@ -70,11 +70,11 @@ class UserAdminController extends BaseController
             if(!$model->save()) throw new \Exception('创建记录失败！原因为:' . current($model->getFirstErrors()), FR::CODE_STATUS_SYSTEM_ERROR);
             if(isset($postData['roles']) && !empty($postData['roles'])) SysUserAdminRoleRelated::relatedUserRole($postData['roles'], $model->id);
             $transaction->commit();
+            return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '创建记录成功！');
         }catch (\Exception $e){
             $transaction->rollBack();
             return FR::jsonResponse($e->getCode(), $e->getMessage());
         }
-        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '创建记录成功！');
     }
     /**
      * Updates an existing UserAdmin model.
@@ -102,13 +102,13 @@ class UserAdminController extends BaseController
         $transaction = Yii::$app->db->beginTransaction();
         try {
             if(!$model->save()) throw new \Exception('更新记录失败！原因为:' . current($model->getFirstErrors()), FR::CODE_STATUS_SYSTEM_ERROR);
-            if(isset($params['roles']) && !empty($params['roles'])) SysUserAdminRoleRelated::relatedUserRole($params['roles'], $model->id, true);
+            if(isset($params['roles'])) SysUserAdminRoleRelated::relatedUserRole($params['roles'], $model->id, true);
             $transaction->commit();
+            return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '更新记录成功！');
         }catch (\Exception $e){
             $transaction->rollBack();
             return FR::jsonResponse($e->getCode(), $e->getMessage());
         }
-        return FR::jsonResponse(FR::CODE_STATUS_SUCCESS, '更新记录成功！');
     }
 
     public function actionHasRelatedRoles($userId)

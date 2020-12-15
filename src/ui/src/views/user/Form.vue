@@ -14,7 +14,7 @@
                 <el-input v-model="form.email"></el-input>
             </el-form-item>
             <el-form-item label="角色" prop="roles">
-                <el-select placeholder="请选择Status" clearable v-model="form.roles" multiple collapse-tags>
+                <el-select placeholder="请选择角色" clearable v-model="form.roles" multiple collapse-tags>
                     <el-option v-for="item in rolesMap"
                                :key="item.id"
                                :label="item.name"
@@ -66,6 +66,7 @@ import * as Validate from '../../utils/validate'
     },
     methods:{
       submitForm(){
+        if (this.form.roles.length === 0) this.form.roles = null;
         this.ifDisabled = true;
         this.$refs.form.validate(valid => {
           if (!valid) return;

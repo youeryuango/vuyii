@@ -190,18 +190,14 @@
         dialogFormVisible: false,
         FormData: {},
         preUpdateId: null,
+        hasRolesMap: []
       }
     },
     watch:{
       dialogFormVisible: {
         handler(newVal) {
-          this.$refs.Form.ifDisabled = false;
-          if (!newVal) {
-            this.preUpdateId = null;
-          }
-          else {
-            this.getHasRelatedRole();
-          }
+          if (this.$refs.Form !== undefined) this.$refs.Form.ifDisabled = false;
+          if (!newVal)  this.preUpdateId = null;
         },
         deep: true
       }
@@ -247,14 +243,7 @@
       update(obj) {
         this.dialogFormVisible = true;
         this.preUpdateId = obj.id;
-        this.$nextTick(() => {
-          this.$refs.Form.form = {
-            account:  obj.account,
-            username: obj.username,
-            email:    obj.email,
-            password: ''
-          };
-        })
+        this.renderChildForm(obj);
       },
       /**
        * 数据更新操作
@@ -268,6 +257,7 @@
           this.$message.success('修改记录成功！')
         }
         this.$refs.Form.ifDisabled = false;
+        this.hasRolesMap = [];
         return this.requestData();
       },
       /**
@@ -307,10 +297,23 @@
         this.$refs.Form.ifDisabled = false;
         return this.requestData();
       },
-      async getHasRelatedRole(){
-        const {data} = await this.$http.get('/user-admin/has-related-roles?userId=' + this.preUpdateId)
-        console.log(data);
-        // if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg)
+      /**
+       * 更新时渲染子组件表单
+       */
+      renderChildForm(obj){
+        this.$http.get('/user-admin/has-related-roles?userId=' + this.preUpdateId).then(resp => {
+          if (resp.data.code !== this.$global.SUCCESS_CODE) return this.$message.error(resp.data.msg)
+          let roles = resp.data.data.roles
+          this.$nextTick(() => {
+            this.$refs.Form.form = {
+              account:  obj.account,
+              username: obj.username,
+              email:    obj.email,
+              password: '',
+              roles:    roles
+            };
+          })
+        })
       },
       /**
        * 监听分页条数变化

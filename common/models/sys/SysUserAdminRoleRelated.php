@@ -61,16 +61,18 @@ class SysUserAdminRoleRelated extends \yii\db\ActiveRecord
     public static function relatedUserRole($roleIds, $userId, $ifUpdate= false)
     {
         $preBatchInsertAry = [];
-        foreach ($roleIds as $roleId) {
-            if(SysRole::findOne($roleId) === null) throw new \Exception('创建记录失败！原因为:角色不存在！');
-            if(!self::find()->where(['user_id' => $userId, 'role_id' => $roleId])->exists()) {
-                array_push($preBatchInsertAry, [$userId, $roleId]);
+        if($ifUpdate === true) self::deleteAll(['user_id' => $userId]);
+        if(!empty($roleIds)){
+            foreach ($roleIds as $roleId) {
+                if(SysRole::findOne($roleId) === null) throw new \Exception('创建记录失败！原因为:角色不存在！');
+                if(!self::find()->where(['user_id' => $userId, 'role_id' => $roleId])->exists()) {
+                    array_push($preBatchInsertAry, [$userId, $roleId]);
+                }
             }
-        }
-        if(!empty($preBatchInsertAry)) {
-            if($ifUpdate === true) self::deleteAll(['user_id' => $userId]);
-            $command = Yii::$app->db->createCommand();
-            $command->batchInsert(self::tableName(), ['user_id', 'role_id'], $preBatchInsertAry)->execute();
+            if(!empty($preBatchInsertAry)) {
+                $command = Yii::$app->db->createCommand();
+                $command->batchInsert(self::tableName(), ['user_id', 'role_id'], $preBatchInsertAry)->execute();
+            }
         }
     }
 
